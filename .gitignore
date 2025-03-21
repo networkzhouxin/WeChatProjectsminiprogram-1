@@ -1,0 +1,37 @@
+# dependencies
+/npm-debug.log*
+/yarn-error.log
+/node_modules
+
+# production
+/dist
+/build
+/docs-dist
+node_modules/
+
+# umi
+.umi
+.umi-production
+.umi-test
+.env.local
+
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+
+### VS Code ###
+.vscode/
+
+### Local History ###
+.history/

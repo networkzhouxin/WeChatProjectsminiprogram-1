@@ -1,0 +1,8 @@
+{
+  "usingComponents": {
+    "cloud-tip-modal": "/components/cloudTipModal/index"
+  },
+  "navigationBarBackgroundColor": "#fff",
+  "navigationBarTitleText": "相册",
+  "enablePullDownRefresh": false
+}
