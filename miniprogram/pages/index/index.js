@@ -71,6 +71,70 @@ Page({
     this.setInitialImages();
   },
 
+  // 监听页面的tabItem点击事件
+  onTabItemTap(item) {
+    const db = wx.cloud.database();
+    const photos = db.collection('photos');
+    
+    console.log('点击了相册', item);
+    
+    // 使用更安全的查询方式：直接获取集合中的数据
+    photos.get().then(res => {
+      if (res.data && res.data.length > 0) {
+        console.log('相册集合中的数据:', res.data);
+      } else {
+        console.log('相册集合为空，请先添加数据');
+        
+        // 尝试创建一条测试数据
+        this.createTestPhotoRecord();
+      }
+    }).catch(err => {
+      console.error('查询相册集合失败:', err);
+      
+      // 检查是否是权限问题
+      if (err.errCode === -1 || err.errMsg.indexOf('permission') > -1) {
+        console.log('可能是云开发权限问题，请检查数据库权限设置');
+      }
+      
+      // 检查集合是否存在
+      this.checkCollectionExists();
+    });
+  },
+  
+  // 检查集合是否存在
+  checkCollectionExists() {
+    const db = wx.cloud.database();
+    
+    // 获取所有集合名称
+    wx.cloud.callFunction({
+      name: 'getCollections',
+      data: {}
+    }).then(res => {
+      console.log('数据库中的集合:', res.result);
+    }).catch(err => {
+      console.error('获取集合列表失败:', err);
+      console.log('请确保云函数已创建并上传');
+    });
+  },
+  
+  // 创建测试数据
+  createTestPhotoRecord() {
+    const db = wx.cloud.database();
+    
+    // 尝试添加一条测试数据
+    db.collection('photos').add({
+      data: {
+        title: '测试相片',
+        url: 'https://example.com/test.jpg',
+        createTime: db.serverDate()
+      }
+    }).then(res => {
+      console.log('成功创建测试数据:', res);
+    }).catch(err => {
+      console.error('创建测试数据失败:', err);
+    });
+  },
+
   // 设置初始图片列表
   setInitialImages() {
     if (this.data.albumList && this.data.albumList.length > 0) {
