@@ -1,4 +1,5 @@
 /**app.wxss**/
+/* 现在npm已安装，可以取消注释 */
 @import './miniprogram_npm/tdesign-miniprogram/common/style/index.wxss';
 
 /* 覆盖TDesign图标字体配置，解决网络请求错误 */

@@ -1,62 +1,15 @@
 // pages/index/index.js
-// 相册数据
-const albumData = [
-  {
-    id: 1,
-    title: '风景',
-    images: [
-      { id: 101, src: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=800&q=80', width: 800, height: 1200, desc: '山水瀑布', date: '2023-05-15' },
-      { id: 102, src: 'https://images.unsplash.com/photo-1511497584788-876760111969?w=800&q=80', width: 800, height: 600, desc: '湖光山色', date: '2023-05-15' },
-      { id: 103, src: 'https://images.unsplash.com/photo-1542224566-6e85f2e6772f?w=800&q=80', width: 800, height: 800, desc: '星空银河', date: '2023-05-20' },
-      { id: 104, src: 'https://images.unsplash.com/photo-1546514355-7fdc90ccbd03?w=800&q=80', width: 800, height: 1000, desc: '雪山风光', date: '2023-05-20' },
-      { id: 105, src: 'https://images.unsplash.com/photo-1433477155337-9aea4e790195?w=800&q=80', width: 800, height: 750, desc: '海岸日落', date: '2023-06-10' },
-      { id: 106, src: 'https://images.unsplash.com/photo-1527489377706-5bf97e608852?w=800&q=80', width: 800, height: 900, desc: '绿色山谷', date: '2023-06-10' }
-    ]
-  },
-  {
-    id: 2,
-    title: '人物',
-    images: [
-      { id: 201, src: 'https://images.unsplash.com/photo-1530785602389-07594beb8b73?w=800&q=80', width: 800, height: 1000, desc: '人像摄影', date: '2023-06-05' },
-      { id: 202, src: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=800&q=80', width: 800, height: 1200, desc: '微笑女孩', date: '2023-06-05' },
-      { id: 203, src: 'https://images.unsplash.com/photo-1504257432389-52343af06ae3?w=800&q=80', width: 800, height: 800, desc: '黑白人像', date: '2023-06-20' },
-      { id: 204, src: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=800&q=80', width: 800, height: 600, desc: '商务人士', date: '2023-06-20' }
-    ]
-  },
-  {
-    id: 3,
-    title: '城市',
-    images: [
-      { id: 301, src: 'https://images.unsplash.com/photo-1518005020951-eccb494ad742?w=800&q=80', width: 800, height: 900, desc: '城市天际线', date: '2023-07-01' },
-      { id: 302, src: 'https://images.unsplash.com/photo-1502899576159-f224dc2349fa?w=800&q=80', width: 800, height: 1000, desc: '繁华都市', date: '2023-07-01' },
-      { id: 303, src: 'https://images.unsplash.com/photo-1514565131-fce0801e5785?w=800&q=80', width: 800, height: 800, desc: '城市夜景', date: '2023-07-15' },
-      { id: 304, src: 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=800&q=80', width: 800, height: 1200, desc: '古典建筑', date: '2023-07-15' },
-      { id: 305, src: 'https://images.unsplash.com/photo-1471039497385-b6d6ba609f9c?w=800&q=80', width: 800, height: 750, desc: '城市街道', date: '2023-07-20' }
-    ]
-  },
-  {
-    id: 4,
-    title: '美食',
-    images: [
-      { id: 401, src: 'https://images.unsplash.com/photo-1476224203421-9ac39bcb3327?w=800&q=80', width: 800, height: 900, desc: '精致甜点', date: '2023-08-01' },
-      { id: 402, src: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=800&q=80', width: 800, height: 1000, desc: '美味佳肴', date: '2023-08-01' },
-      { id: 403, src: 'https://images.unsplash.com/photo-1484980972926-edee96e0960d?w=800&q=80', width: 800, height: 800, desc: '健康沙拉', date: '2023-08-10' },
-      { id: 404, src: 'https://images.unsplash.com/photo-1541658016709-82535e94bc69?w=800&q=80', width: 800, height: 1200, desc: '咖啡艺术', date: '2023-08-10' },
-      { id: 405, src: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=800&q=80', width: 800, height: 750, desc: '缤纷蔬果', date: '2023-08-15' }
-    ]
-  }
-];
-
+// 移除静态相册数据
 Page({
   data: {
-    albumList: albumData,
+    albumList: [], // 改为空数组，从云端加载
     currentTab: 0,
     currentImages: [],
     groupedImages: [],
     isLoading: false,
     hasMore: false,
     page: 1,
-    uploadedImagesByTab: [[], [], [], []], // 每个tab栏对应的上传图片数组
+    uploadedImagesByTab: [], // 每个tab栏对应的上传图片数组
     isEditingTab: false,
     editingTabIndex: -1,
     editingTabName: '',
@@ -64,41 +17,258 @@ Page({
     tabActionIndex: -1,
     showAddTagModal: false,
     newTagName: '',
-    scrollIntoView: '' // 用于控制滚动到指定标签
+    scrollIntoView: '', // 用于控制滚动到指定标签
+    
+    // 上传相关数据
+    showUploadForm: false,
+    tempImageFiles: [],
+    uploadDesc: '',
+    
+    // 下拉刷新状态
+    refreshing: false
   },
 
   onLoad() {
-    this.setInitialImages();
+    // 检查是否已经初始化云环境
+    if (!wx.cloud) {
+      console.error('请使用 2.2.3 或以上的基础库以使用云能力');
+    } else {
+      wx.cloud.init({
+        env: wx.cloud.DYNAMIC_CURRENT_ENV,
+        traceUser: true,
+      });
+      
+      // 先加载标签分类数据
+      this.loadAlbumCategories();
+    }
+  },
+  
+  // 页面显示时刷新数据
+  onShow() {
+    // 如果已经加载过相册分类，则直接刷新图片数据
+    if (this.data.albumList && this.data.albumList.length > 0) {
+      this.loadCloudImages();
+    }
+  },
+  
+  // 从云函数获取标签分类数据
+  loadAlbumCategories() {
+    return new Promise((resolve, reject) => {
+      wx.showLoading({
+        title: '加载相册...',
+      });
+      
+      // 从云数据库获取所有照片的标签信息，统计分类
+      const db = wx.cloud.database();
+      
+      // 先查询所有照片，获取标签信息
+      wx.cloud.callFunction({
+        name: 'getPhotoList',
+        data: {}
+      }).then(res => {
+        console.log('获取照片列表成功:', res);
+        
+        if (res.result && res.result.photoList) {
+          const photos = res.result.photoList;
+          
+          // 统计标签分类
+          const tagMap = new Map();
+          
+          // 为每个标签创建一个分类
+          photos.forEach(photo => {
+            const tag = photo.tag || '未分类';
+            if (!tagMap.has(tag)) {
+              tagMap.set(tag, {
+                id: tagMap.size + 1,
+                title: tag,
+                images: []
+              });
+            }
+          });
+          
+          // 如果没有任何分类，创建一个默认分类
+          if (tagMap.size === 0) {
+            tagMap.set('未分类', {
+              id: 1,
+              title: '未分类',
+              images: []
+            });
+          }
+          
+          // 将Map转为数组
+          const albumList = Array.from(tagMap.values());
+          
+          // 初始化uploadedImagesByTab数组，长度与albumList一致
+          const uploadedImagesByTab = new Array(albumList.length).fill().map(() => []);
+          
+          this.setData({
+            albumList,
+            uploadedImagesByTab
+          }, () => {
+            // 加载云端的图片数据
+            this.loadCloudImages().then(() => {
+              wx.hideLoading();
+              resolve();
+            }).catch(err => {
+              wx.hideLoading();
+              reject(err);
+            });
+          });
+        } else {
+          // 没有照片数据，创建默认分类
+          const defaultAlbumList = [{
+            id: 1,
+            title: '未分类',
+            images: []
+          }];
+          
+          this.setData({
+            albumList: defaultAlbumList,
+            uploadedImagesByTab: [[]]
+          });
+          
+          wx.hideLoading();
+          resolve();
+        }
+      }).catch(err => {
+        console.error('获取照片列表失败:', err);
+        
+        // 出错时创建默认分类
+        const defaultAlbumList = [{
+          id: 1,
+          title: '未分类',
+          images: []
+        }];
+        
+        this.setData({
+          albumList: defaultAlbumList,
+          uploadedImagesByTab: [[]]
+        });
+        
+        wx.hideLoading();
+        
+        wx.showToast({
+          title: '加载失败',
+          icon: 'none'
+        });
+        
+        reject(err);
+      });
+    });
+  },
+  
+  // 从云数据库加载图片
+  loadCloudImages() {
+    return new Promise((resolve, reject) => {
+      wx.showLoading({
+        title: '加载图片...',
+      });
+      
+      // 调用云函数获取所有照片
+      wx.cloud.callFunction({
+        name: 'getPhotoList',
+        data: {}
+      }).then(res => {
+        console.log('获取照片列表成功:', res);
+        
+        if (res.result && res.result.photoList && res.result.photoList.length > 0) {
+          const photos = res.result.photoList;
+          
+          // 按标签分组照片
+          const uploadedByTag = new Array(this.data.albumList.length).fill().map(() => []);
+          
+          photos.forEach(photo => {
+            // 根据tag将图片分配到对应标签
+            let tabIndex = 0; // 默认放在第一个标签
+            
+            // 查找图片标签对应的相册索引
+            for (let i = 0; i < this.data.albumList.length; i++) {
+              if (this.data.albumList[i].title === photo.tag) {
+                tabIndex = i;
+                break;
+              }
+            }
+            
+            // 构建图片对象
+            const imageObj = {
+              id: 'upload_' + tabIndex + '_' + photo._id, // 生成唯一ID
+              src: photo.tempFileURL || '', // 使用云函数返回的临时链接
+              width: 800, // 假设宽度
+              height: 800, // 假设高度
+              desc: photo.desc || '',
+              date: this.formatDate(new Date(photo.uploadTime)),
+              cloudID: photo._id,
+              fileID: photo.fileID
+            };
+            
+            // 添加到对应标签的上传图片数组
+            uploadedByTag[tabIndex].push(imageObj);
+          });
+          
+          this.setData({
+            uploadedImagesByTab: uploadedByTag
+          }, () => {
+            // 更新当前显示的图片
+            this.setInitialImages();
+            wx.hideLoading();
+            resolve();
+          });
+        } else {
+          this.setInitialImages();
+          wx.hideLoading();
+          resolve();
+        }
+      }).catch(err => {
+        console.error('加载云图片失败:', err);
+        wx.hideLoading();
+        
+        // 确保初始化当前图片
+        this.setInitialImages();
+        
+        wx.showToast({
+          title: '加载失败',
+          icon: 'none'
+        });
+        
+        reject(err);
+      });
+    });
+  },
+
+  // 设置初始图片列表
+  setInitialImages() {
+    if (this.data.albumList && this.data.albumList.length > 0) {
+      const currentTab = this.data.currentTab;
+      // 不再使用本地mock数据
+      const currentAlbumImages = [];
+      const currentTabUploadedImages = this.data.uploadedImagesByTab[currentTab] || [];
+      
+      // 使用从云端加载的图片
+      const currentImages = [...currentTabUploadedImages];
+      
+      this.setData({
+        currentImages
+      }, () => {
+        this.groupImagesByDate();
+      });
+    }
   },
 
   // 监听页面的tabItem点击事件
   onTabItemTap(item) {
-    const db = wx.cloud.database();
-    const photos = db.collection('photos');
-    
     console.log('点击了相册', item);
     
-    // 使用更安全的查询方式：直接获取集合中的数据
-    photos.get().then(res => {
-      if (res.data && res.data.length > 0) {
-        console.log('相册集合中的数据:', res.data);
-      } else {
-        console.log('相册集合为空，请先添加数据');
-        
-        // 尝试创建一条测试数据
-        this.createTestPhotoRecord();
-      }
-    }).catch(err => {
-      console.error('查询相册集合失败:', err);
+    // 点击当前页面的底部标签时，刷新相册数据
+    if (item.index === 0) { // 相册标签的index为0
+      // 重新加载相册分类和图片
+      this.loadAlbumCategories();
       
-      // 检查是否是权限问题
-      if (err.errCode === -1 || err.errMsg.indexOf('permission') > -1) {
-        console.log('可能是云开发权限问题，请检查数据库权限设置');
-      }
-      
-      // 检查集合是否存在
-      this.checkCollectionExists();
-    });
+      wx.showToast({
+        title: '刷新成功',
+        icon: 'success',
+        duration: 1000
+      });
+    }
   },
   
   // 检查集合是否存在
@@ -133,24 +303,6 @@ Page({
     }).catch(err => {
       console.error('创建测试数据失败:', err);
     });
-  },
-
-  // 设置初始图片列表
-  setInitialImages() {
-    if (this.data.albumList && this.data.albumList.length > 0) {
-      const currentTab = this.data.currentTab;
-      const currentAlbumImages = [...this.data.albumList[currentTab].images];
-      const currentTabUploadedImages = this.data.uploadedImagesByTab[currentTab] || [];
-      
-      // 将当前tab栏上传的图片与原有图片合并显示
-      const currentImages = [...currentTabUploadedImages, ...currentAlbumImages];
-      
-      this.setData({
-        currentImages
-      }, () => {
-        this.groupImagesByDate();
-      });
-    }
   },
 
   // 按日期对图片进行分组
@@ -236,7 +388,8 @@ Page({
       // 先清空滚动定位
       scrollIntoView: ''
     }, () => {
-      this.setInitialImages();
+      // 切换标签时刷新云端数据
+      this.loadCloudImages();
       
       // 使用nextTick确保DOM更新后再滚动
       wx.nextTick(() => {
@@ -486,68 +639,223 @@ Page({
     const imageIndex = currentImages.findIndex(item => item.id === id);
     
     if (imageIndex >= 0) {
-      const imageUrls = currentImages.map(item => item.src);
-      wx.previewImage({
-        current: imageUrls[imageIndex],
-        urls: imageUrls
-      });
+      // 查找需要预览的图片
+      const selectedImage = currentImages[imageIndex];
+      
+      // 如果是云存储图片（以upload_开头的ID）
+      if (String(id).startsWith('upload_')) {
+        // 获取所有需要预览的图片fileID
+        const fileIDList = currentImages
+          .filter(img => String(img.id).startsWith('upload_'))
+          .map(img => img.fileID);
+        
+        // 获取最新的临时访问链接
+        wx.cloud.getTempFileURL({
+          fileList: fileIDList,
+          success: res => {
+            // 构建fileID到URL的映射
+            const urlMap = {};
+            res.fileList.forEach(file => {
+              urlMap[file.fileID] = file.tempFileURL;
+            });
+            
+            // 构建预览图片URL数组
+            const previewUrls = currentImages.map(img => {
+              if (String(img.id).startsWith('upload_') && img.fileID) {
+                // 云存储图片使用最新临时链接
+                return urlMap[img.fileID] || img.src;
+              } else {
+                // 本地图片直接使用src
+                return img.src;
+              }
+            });
+            
+            // 使用预览图片API
+            wx.previewImage({
+              current: previewUrls[imageIndex],
+              urls: previewUrls
+            });
+          },
+          fail: err => {
+            console.error('获取预览链接失败:', err);
+            // 退回到原来的方式，直接使用现有链接
+            const imageUrls = currentImages.map(item => item.src);
+            wx.previewImage({
+              current: imageUrls[imageIndex],
+              urls: imageUrls
+            });
+          }
+        });
+      } else {
+        // 非云存储图片，直接使用现有链接
+        const imageUrls = currentImages.map(item => item.src);
+        wx.previewImage({
+          current: imageUrls[imageIndex],
+          urls: imageUrls
+        });
+      }
     }
   },
 
-  // 上传图片
+  // 显示上传表单
   uploadImage() {
+    this.setData({
+      showUploadForm: true,
+      tempImageFiles: [],
+      uploadDesc: ''
+    });
+  },
+  
+  // 关闭上传表单
+  closeUploadForm() {
+    this.setData({
+      showUploadForm: false,
+      tempImageFiles: []
+    });
+  },
+  
+  // 选择图片
+  chooseImages() {
     wx.chooseMedia({
       count: 9,
       mediaType: ['image'],
       sourceType: ['album', 'camera'],
-      success: (res) => {
-        // 上传成功后，将选择的图片添加到当前标签页的上传列表
-        const tempFiles = res.tempFiles;
-        const currentTab = this.data.currentTab;
-        const currentDate = this.formatDate(new Date());
-        
-        const uploadedImages = tempFiles.map((file, index) => {
-          const timestamp = new Date().getTime();
-          return {
-            id: `upload_${currentTab}_${timestamp}_${index}`,
-            src: file.tempFilePath,
-            width: file.width || 800,
-            height: file.height || 800,
-            desc: `${this.data.albumList[currentTab].title}相册`,
-            date: currentDate
-          };
-        });
-
-        // 获取当前tab栏的上传图片数组
-        const uploadedImagesByTab = [...this.data.uploadedImagesByTab];
-        uploadedImagesByTab[currentTab] = [...(uploadedImagesByTab[currentTab] || []), ...uploadedImages];
-        
+      camera: 'back',
+      success: res => {
+        console.log('选择图片成功:', res);
         this.setData({
-          uploadedImagesByTab
-        }, () => {
-          // 更新当前显示的图片
-          const currentImages = [...uploadedImages, ...this.data.currentImages];
-          
-          this.setData({ 
-            currentImages 
-          }, () => {
-            // 重新按日期分组
-            this.groupImagesByDate();
-          });
-          
-          wx.showToast({
-            title: '上传成功',
-            icon: 'success'
-          });
-        });
-      },
-      fail: (err) => {
-        console.error('选择图片失败', err);
-        wx.showToast({
-          title: '上传失败',
-          icon: 'error'
+          tempImageFiles: res.tempFiles
         });
       }
+    });
+  },
+  
+  // 添加更多图片
+  addMoreImages() {
+    const currentCount = this.data.tempImageFiles.length;
+    
+    wx.chooseMedia({
+      count: 9 - currentCount,
+      mediaType: ['image'],
+      sourceType: ['album', 'camera'],
+      camera: 'back',
+      success: res => {
+        console.log('选择更多图片成功:', res);
+        this.setData({
+          tempImageFiles: [...this.data.tempImageFiles, ...res.tempFiles]
+        });
+      }
+    });
+  },
+  
+  // 移除临时图片
+  removeTempImage(e) {
+    const { index } = e.currentTarget.dataset;
+    const tempImageFiles = [...this.data.tempImageFiles];
+    tempImageFiles.splice(index, 1);
+    
+    this.setData({
+      tempImageFiles
+    });
+  },
+  
+  // 输入上传描述
+  onUploadDescInput(e) {
+    this.setData({
+      uploadDesc: e.detail.value
+    });
+  },
+  
+  // 确认上传图片
+  confirmUpload() {
+    const { tempImageFiles, uploadDesc, currentTab } = this.data;
+    const tag = this.data.albumList[currentTab].title;
+    
+    if (tempImageFiles.length === 0) {
+      wx.showToast({
+        title: '请选择图片',
+        icon: 'none'
+      });
+      return;
+    }
+    
+    // 显示上传进度
+    wx.showLoading({
+      title: '上传中...',
+    });
+    
+    // 依次上传每张图片
+    const uploadTasks = tempImageFiles.map((file, index) => {
+      return this.uploadSingleImage(file, tag, uploadDesc, index, tempImageFiles.length);
+    });
+    
+    // 所有图片上传完成后
+    Promise.all(uploadTasks)
+      .then(results => {
+        console.log('所有图片上传完成:', results);
+        
+        wx.hideLoading();
+        wx.showToast({
+          title: '上传成功',
+          icon: 'success'
+        });
+        
+        // 关闭上传表单
+        this.setData({
+          showUploadForm: false,
+          tempImageFiles: []
+        });
+        
+        // 重新加载云图片
+        this.loadCloudImages();
+      })
+      .catch(err => {
+        console.error('图片上传失败:', err);
+        wx.hideLoading();
+        
+        wx.showToast({
+          title: '上传失败',
+          icon: 'none'
+        });
+      });
+  },
+  
+  // 上传单张图片
+  uploadSingleImage(file, tag, desc, index, total) {
+    return new Promise((resolve, reject) => {
+      const cloudPath = `photos/${Date.now()}_${index}.${file.tempFilePath.match(/\.(\w+)$/)[1]}`;
+      
+      // 1. 上传文件到云存储
+      wx.cloud.uploadFile({
+        cloudPath: cloudPath,
+        filePath: file.tempFilePath,
+        success: res => {
+          console.log('上传到云存储成功:', res);
+          const fileID = res.fileID;
+          
+          // 2. 调用云函数，保存图片信息到数据库
+          wx.cloud.callFunction({
+            name: 'uploadImage',
+            data: {
+              fileID: fileID,
+              tag: tag,
+              desc: desc || ''
+            },
+            success: result => {
+              console.log('保存图片信息成功:', result);
+              resolve(result);
+            },
+            fail: err => {
+              console.error('调用云函数失败:', err);
+              reject(err);
+            }
+          });
+        },
+        fail: err => {
+          console.error('上传到云存储失败:', err);
+          reject(err);
+        }
+      });
     });
   },
 
@@ -686,5 +994,42 @@ Page({
     wx.navigateTo({
       url: '/pages/goods-list/index',
     })
+  },
+
+  // 开启下拉刷新
+  onPullDownRefresh() {
+    // 设置刷新状态
+    this.setData({
+      refreshing: true
+    });
+    
+    // 重新加载相册分类和图片
+    this.loadAlbumCategories().then(() => {
+      // 停止下拉刷新动画
+      wx.stopPullDownRefresh();
+      
+      this.setData({
+        refreshing: false
+      });
+      
+      wx.showToast({
+        title: '刷新成功',
+        icon: 'success',
+        duration: 1000
+      });
+    }).catch(err => {
+      // 停止下拉刷新动画
+      wx.stopPullDownRefresh();
+      
+      this.setData({
+        refreshing: false
+      });
+      
+      wx.showToast({
+        title: '刷新失败',
+        icon: 'none',
+        duration: 1000
+      });
+    });
   },
 });

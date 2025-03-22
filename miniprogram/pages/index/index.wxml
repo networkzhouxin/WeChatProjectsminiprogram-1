@@ -6,6 +6,12 @@
     </view>
     
     <view class="tabs-container">
+      <!-- 添加下拉刷新提示 -->
+      <view class="pull-refresh-tip" wx:if="{{refreshing}}">
+        <view class="refresh-icon"></view>
+        <text class="refresh-text">正在刷新...</text>
+      </view>
+      
       <view class="tab-header-wrapper">
         <scroll-view 
           scroll-x="{{true}}" 
@@ -166,6 +172,49 @@
       <view class="custom-modal-footer">
         <view class="custom-modal-btn cancel" bindtap="closeAddTagModal">取消</view>
         <view class="custom-modal-btn confirm" bindtap="confirmAddTag">确定</view>
+      </view>
+    </view>
+  </view>
+  
+  <!-- 添加图片上传表单弹窗 -->
+  <view class="custom-modal-mask" wx:if="{{showUploadForm}}" bindtap="closeUploadForm">
+    <view class="custom-modal upload-form" catchtap="function(e){e.stopPropagation();}">
+      <view class="custom-modal-title">上传图片</view>
+      
+      <view class="custom-modal-content">
+        <view class="upload-preview-container" wx:if="{{tempImageFiles.length > 0}}">
+          <scroll-view scroll-x class="upload-preview-scroll">
+            <view class="upload-preview-list">
+              <view class="upload-preview-item" wx:for="{{tempImageFiles}}" wx:key="index">
+                <image src="{{item.tempFilePath}}" mode="aspectFill" class="preview-image"></image>
+                <view class="preview-delete" catchtap="removeTempImage" data-index="{{index}}">×</view>
+              </view>
+              <view class="upload-preview-add" bindtap="addMoreImages" wx:if="{{tempImageFiles.length < 9}}">
+                <view class="add-icon">+</view>
+              </view>
+            </view>
+          </scroll-view>
+        </view>
+        
+        <view class="upload-empty" bindtap="chooseImages" wx:if="{{tempImageFiles.length === 0}}">
+          <view class="upload-icon">+</view>
+          <view class="upload-text">选择图片</view>
+        </view>
+        
+        <view class="form-item">
+          <view class="form-label">所属标签</view>
+          <view class="form-value tag-value">{{albumList[currentTab].title}}</view>
+        </view>
+        
+        <view class="form-item">
+          <view class="form-label">图片描述</view>
+          <input class="form-input" placeholder="请输入图片描述" value="{{uploadDesc}}" bindinput="onUploadDescInput" maxlength="30" />
+        </view>
+      </view>
+      
+      <view class="custom-modal-footer">
+        <view class="custom-modal-btn cancel" bindtap="closeUploadForm">取消</view>
+        <view class="custom-modal-btn confirm {{tempImageFiles.length === 0 ? 'disabled' : ''}}" bindtap="confirmUpload">上传</view>
       </view>
     </view>
   </view>
