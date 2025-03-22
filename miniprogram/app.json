@@ -1,6 +1,10 @@
 {
   "pages": [
     "pages/index/index",
+    "pages/upload/index",
+    "pages/album-detail/index",
+    "pages/photo-detail/index",
+    "pages/me/index",
     "pages/goods-list/index",
     "pages/examples/index",
     "pages/user-center/index",

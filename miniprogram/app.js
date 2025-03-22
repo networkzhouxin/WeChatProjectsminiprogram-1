@@ -4,6 +4,12 @@ require('./utils/babel-polyfill.js');
 
 App({
   onLaunch: function () {
+    // 先初始化globalData
+    this.globalData = {
+      userInfo: null,
+      cloudEnv: wx.cloud.DYNAMIC_CURRENT_ENV
+    };
+
     if (!wx.cloud) {
       console.error("请使用 2.2.3 或以上的基础库以使用云能力");
     } else {
@@ -18,9 +24,38 @@ App({
       
       // 初始化云环境后，检查并创建必要的集合
       this.initCloudCollection();
+      
+      // 添加全局临时文件URL处理函数
+      this.globalData.getTempFileURL = this.getTempFileURL;
     }
-
-    this.globalData = {};
+  },
+  
+  // 获取临时文件链接的全局函数
+  getTempFileURL: function(fileID) {
+    return new Promise((resolve, reject) => {
+      if (!fileID) {
+        reject(new Error('fileID不能为空'));
+        return;
+      }
+      
+      console.log('获取临时文件链接:', fileID);
+      
+      wx.cloud.getTempFileURL({
+        fileList: [fileID],
+        success: res => {
+          console.log('成功获取临时文件链接:', res);
+          if (res.fileList && res.fileList.length > 0) {
+            resolve(res.fileList[0].tempFileURL);
+          } else {
+            reject(new Error('获取临时链接失败: 空结果'));
+          }
+        },
+        fail: err => {
+          console.error('获取临时链接失败:', err);
+          reject(err);
+        }
+      });
+    });
   },
   
   // 检查并创建必要的集合
@@ -47,6 +82,31 @@ App({
             console.log('成功创建photos集合', res);
           }).catch(err => {
             console.error('创建photos集合失败', err);
+          });
+        }
+      });
+      
+    // 检查albums集合
+    db.collection('albums').count()
+      .then(res => {
+        console.log('albums集合已存在', res);
+      })
+      .catch(err => {
+        console.error('检查albums集合失败', err);
+        
+        // 创建一条测试数据，集合将被自动创建
+        if (err.errCode === -100) {
+          console.log('尝试创建albums集合');
+          db.collection('albums').add({
+            data: {
+              title: '默认相册',
+              photoCount: 0,
+              createdTime: db.serverDate()
+            }
+          }).then(res => {
+            console.log('成功创建albums集合', res);
+          }).catch(err => {
+            console.error('创建albums集合失败', err);
           });
         }
       });

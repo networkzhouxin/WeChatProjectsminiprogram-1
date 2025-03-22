@@ -1,0 +1,63 @@
+<view class="container">
+  <!-- 标题区域 -->
+  <view class="header">
+    <view class="page-title">{{albumTitle || '添加照片'}}</view>
+    <!-- 上传按钮固定在标题行右侧 -->
+    <view class="upload-btn" bindtap="submitPhoto" wx:if="{{tempFilePaths.length > 0}}">
+      <button class="submit-btn" type="primary" disabled="{{isSubmitting}}">
+        {{isSubmitting ? '上传中...' : '上传'}}
+      </button>
+    </view>
+  </view>
+
+  <!-- 照片描述区域 -->
+  <view class="content-section">
+    <textarea class="desc-input" 
+      placeholder="说点什么吧..." 
+      value="{{photoDesc}}" 
+      bindinput="onPhotoDescInput"
+      maxlength="200"
+    ></textarea>
+  </view>
+
+  <!-- 当没有照片时显示大的添加按钮 -->
+  <view class="empty-photos" wx:if="{{tempFilePaths.length === 0}}" bindtap="choosePhoto">
+    <view class="big-add-btn">
+      <text class="big-add-icon">+</text>
+      <text class="big-add-text">添加照片</text>
+    </view>
+  </view>
+
+  <!-- 照片区域 - 有照片时显示 -->
+  <view class="photos-section" wx:if="{{tempFilePaths.length > 0}}">
+    <view class="photos-grid">
+      <view wx:for="{{tempFilePaths}}" wx:key="index" class="photo-grid-item">
+        <image src="{{item}}" mode="aspectFill" class="photo-image" lazy-load></image>
+        <view class="delete-photo" catchtap="deletePhoto" data-index="{{index}}">
+          <text class="delete-icon">×</text>
+        </view>
+      </view>
+
+      <!-- 添加更多照片按钮 -->
+      <view class="photo-grid-item add-photo-item" bindtap="choosePhoto" wx:if="{{tempFilePaths.length < 9}}">
+        <view class="add-photo-content">
+          <text class="add-icon">+</text>
+          <text class="add-text">添加照片</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 设置区域 -->
+  <view class="settings-section">
+    <view class="settings-item">
+      <view class="settings-label">照片压缩</view>
+      <switch checked="{{compressed}}" bindchange="onCompressedChange" color="#07c160"></switch>
+    </view>
+  </view>
+  
+  <!-- 固定在右下角的添加照片按钮 -->
+  <view class="fixed-add-btn" bindtap="choosePhoto" wx:if="{{tempFilePaths.length > 0 && tempFilePaths.length < 9}}">
+    <text class="fixed-add-icon">+</text>
+  </view>
+</view> 

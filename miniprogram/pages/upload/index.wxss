@@ -1,0 +1,505 @@
+/* pages/upload/index.wxss */
+.container {
+  padding: 0;
+  position: relative;
+  box-sizing: border-box;
+  min-height: 100vh;
+  background-color: #ffffff;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 标题区域 */
+.header {
+  padding: 30rpx 30rpx 20rpx;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.page-title {
+  font-size: 34rpx;
+  font-weight: 500;
+  color: #333;
+}
+
+.upload-btn {
+  margin-left: 20rpx;
+}
+
+.submit-btn {
+  background-color: #07c160;
+  color: #fff;
+  font-size: 28rpx;
+  height: 70rpx;
+  padding: 0 30rpx;
+  border-radius: 35rpx;
+  line-height: 70rpx;
+  font-weight: normal;
+  min-width: 120rpx;
+  box-shadow: 0 4rpx 8rpx rgba(7, 193, 96, 0.2);
+}
+
+/* 照片描述区域 */
+.content-section {
+  padding: 30rpx;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.desc-input {
+  width: 100%;
+  min-height: 180rpx;
+  font-size: 30rpx;
+  line-height: 1.6;
+  color: #333;
+}
+
+/* 大添加按钮 - 空状态 */
+.empty-photos {
+  padding: 60rpx 30rpx;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.big-add-btn {
+  width: 240rpx;
+  height: 240rpx;
+  border-radius: 20rpx;
+  background-color: #f5f5f5;
+  border: 2rpx dashed #ccc;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.big-add-icon {
+  font-size: 80rpx;
+  color: #999;
+  line-height: 1;
+  margin-bottom: 20rpx;
+}
+
+.big-add-text {
+  font-size: 28rpx;
+  color: #999;
+}
+
+/* 固定在底部的添加按钮 */
+.fixed-add-btn {
+  position: fixed;
+  right: 30rpx;
+  bottom: 140rpx;
+  width: 100rpx;
+  height: 100rpx;
+  border-radius: 50%;
+  background-color: #07c160;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 4rpx 20rpx rgba(7, 193, 96, 0.3);
+  z-index: 100;
+}
+
+.fixed-add-icon {
+  color: white;
+  font-size: 60rpx;
+  line-height: 1;
+}
+
+/* 照片区域 */
+.photos-section {
+  padding: 30rpx;
+  flex: 1;
+}
+
+.photos-grid {
+  display: flex;
+  flex-wrap: wrap;
+  margin: -8rpx;
+  width: 100%;
+}
+
+.photo-grid-item {
+  width: calc(33.333% - 16rpx);
+  padding-bottom: calc(33.333% - 16rpx);
+  margin: 8rpx;
+  position: relative;
+  border-radius: 8rpx;
+  overflow: hidden;
+  box-shadow: 0 2rpx 6rpx rgba(0, 0, 0, 0.1);
+}
+
+.photo-image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.delete-photo {
+  position: absolute;
+  top: 10rpx;
+  right: 10rpx;
+  width: 44rpx;
+  height: 44rpx;
+  background-color: rgba(0, 0, 0, 0.4);
+  color: #fff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%;
+  z-index: 10;
+}
+
+.delete-icon {
+  font-size: 30rpx;
+}
+
+/* 添加照片按钮样式 */
+.add-photo-item {
+  border: 2rpx dashed #ccc;
+  background-color: #fafafa;
+}
+
+.add-photo-content {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #999;
+}
+
+.add-icon {
+  font-size: 60rpx;
+  line-height: 1;
+  margin-bottom: 10rpx;
+}
+
+.add-text {
+  font-size: 26rpx;
+}
+
+/* 设置区域 */
+.settings-section {
+  padding: 0 30rpx;
+  border-top: 10rpx solid #f5f5f5;
+  margin-top: 30rpx;
+}
+
+.settings-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 30rpx 0;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.settings-label {
+  font-size: 28rpx;
+  color: #333;
+}
+
+/* 照片描述容器 */
+.desc-container {
+  width: 100%;
+  padding: 20rpx;
+  background-color: #fff;
+  border-radius: 12rpx;
+  box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.05);
+  margin-bottom: 20rpx;
+  box-sizing: border-box;
+}
+
+/* 照片压缩选项 */
+.form-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20rpx;
+  background-color: #fff;
+  border-radius: 12rpx;
+  margin-bottom: 20rpx;
+  box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.05);
+}
+
+.form-label {
+  font-size: 28rpx;
+  color: #333;
+}
+
+/* 照片网格样式 */
+.photos-grid {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0 -10rpx;
+  padding: 10rpx 0;
+}
+
+.photo-grid-item {
+  width: calc(33.33% - 20rpx);
+  margin: 10rpx;
+  position: relative;
+  height: 220rpx;
+  border-radius: 12rpx;
+  overflow: hidden;
+  background-color: #fff;
+  box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.05);
+}
+
+.photo-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.delete-photo {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 40rpx;
+  height: 40rpx;
+  background-color: rgba(0, 0, 0, 0.5);
+  color: #fff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 30rpx;
+  z-index: 10;
+}
+
+/* 添加照片按钮样式 */
+.add-photo-item {
+  background-color: #f5f5f5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2rpx dashed #ddd;
+}
+
+.add-photo-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #999;
+  width: 100%;
+  height: 100%;
+}
+
+.add-icon {
+  font-size: 50rpx;
+  margin-bottom: 10rpx;
+  line-height: 1;
+}
+
+.add-text {
+  font-size: 24rpx;
+}
+
+/* 右上角上传按钮 */
+.upload-btn-fixed {
+  position: fixed;
+  top: 20rpx;
+  right: 30rpx;
+  z-index: 100;
+}
+
+/* 已选择照片列表样式 */
+.selected-photos-container {
+  margin: 30rpx 0;
+}
+
+.selected-photos-title {
+  font-size: 28rpx;
+  color: #666;
+  margin-bottom: 16rpx;
+}
+
+.selected-photos-list {
+  white-space: nowrap;
+  padding: 10rpx 0;
+}
+
+.selected-photo-item {
+  display: inline-block;
+  width: 180rpx;
+  height: 180rpx;
+  margin-right: 15rpx;
+  position: relative;
+  border-radius: 8rpx;
+  overflow: hidden;
+}
+
+.selected-photo-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* 添加照片区域样式 */
+.add-photo-area {
+  margin: 40rpx 0;
+  display: flex;
+  justify-content: center;
+}
+
+.add-photo-button {
+  width: 300rpx;
+  height: 80rpx;
+  border: 2rpx dashed #ccc;
+  border-radius: 8rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #666;
+}
+
+/* 相册选择器样式 */
+.album-selector {
+  display: flex;
+  justify-content: space-between;
+  padding: 20rpx;
+  background-color: #f5f5f5;
+  border-radius: 8rpx;
+  font-size: 28rpx;
+}
+
+.album-selector .cuIcon-right {
+  color: #999;
+}
+
+/* 相册选择弹窗 */
+.album-selector-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1000;
+  visibility: hidden;
+  opacity: 0;
+  transition: all 0.3s ease;
+}
+
+.album-selector-modal.show {
+  visibility: visible;
+  opacity: 1;
+}
+
+.modal-mask {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal-content {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: #fff;
+  border-top-left-radius: 24rpx;
+  border-top-right-radius: 24rpx;
+  max-height: 80%;
+  display: flex;
+  flex-direction: column;
+  transform: translateY(100%);
+  transition: transform 0.3s ease;
+}
+
+.album-selector-modal.show .modal-content {
+  transform: translateY(0);
+}
+
+.modal-header {
+  padding: 30rpx;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1rpx solid #eee;
+}
+
+.modal-title {
+  font-size: 32rpx;
+  font-weight: bold;
+}
+
+.modal-close {
+  font-size: 40rpx;
+  color: #999;
+}
+
+.album-list {
+  flex: 1;
+  max-height: 800rpx;
+  padding: 20rpx 30rpx;
+}
+
+.album-item {
+  display: flex;
+  align-items: center;
+  padding: 20rpx 0;
+  border-bottom: 1rpx solid #eee;
+  position: relative;
+}
+
+.album-item.selected {
+  background-color: #f0f9eb;
+}
+
+.album-preview {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 8rpx;
+  margin-right: 20rpx;
+  flex-shrink: 0;
+}
+
+.album-title {
+  flex: 1;
+  font-size: 28rpx;
+  color: #333;
+}
+
+.album-count {
+  font-size: 24rpx;
+  color: #999;
+  margin-right: 20rpx;
+}
+
+.selected-icon {
+  color: #07c160;
+  font-size: 36rpx;
+}
+
+.empty-album-tip {
+  padding: 80rpx 0;
+  text-align: center;
+  color: #999;
+  font-size: 28rpx;
+}
+
+.modal-footer {
+  padding: 20rpx 30rpx 40rpx;
+}
+
+.create-album-btn {
+  width: 100%;
+  background-color: #07c160;
+  color: #fff;
+  border-radius: 8rpx;
+  font-size: 28rpx;
+} 

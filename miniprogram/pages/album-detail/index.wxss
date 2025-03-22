@@ -1,0 +1,357 @@
+/* pages/album-detail/index.wxss */
+/* 主容器 */
+.album-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background-color: #f9f9f9;
+  position: relative;
+}
+
+/* 顶部导航栏 */
+.navigation-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24rpx 30rpx;
+  background-color: #ffffff;
+  box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.05);
+  position: relative;
+  z-index: 10;
+}
+
+.album-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.album-title {
+  font-size: 36rpx;
+  font-weight: 600;
+  color: #333333;
+  margin-bottom: 6rpx;
+}
+
+.photo-count {
+  font-size: 24rpx;
+  color: #888888;
+}
+
+.nav-actions {
+  display: flex;
+}
+
+.action-btn {
+  width: 70rpx;
+  height: 70rpx;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%;
+}
+
+.action-icon {
+  font-size: 38rpx;
+  color: #666666;
+}
+
+/* 内容区域 */
+.content-area {
+  flex: 1;
+  padding: 20rpx 24rpx;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+/* 照片网格 */
+.photo-grid {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0 -8rpx;
+}
+
+.photo-item {
+  width: calc(33.333% - 16rpx);
+  margin: 8rpx;
+  position: relative;
+  overflow: hidden;
+  border-radius: 12rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.1);
+  background-color: #f0f0f0;
+  transform: translateZ(0);
+  transition: transform 0.2s ease;
+}
+
+.photo-item.loading {
+  opacity: 0.8;
+}
+
+.photo-item:active {
+  transform: scale(0.98);
+}
+
+.photo-item::before {
+  content: "";
+  display: block;
+  padding-top: 100%; /* 1:1 宽高比 */
+}
+
+.photo-image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  backface-visibility: hidden; /* 防止过渡期间出现闪烁 */
+  transition: opacity 0.3s ease;
+  z-index: 1;
+}
+
+.photo-loading {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2;
+}
+
+.loading-spinner {
+  width: 40rpx;
+  height: 40rpx;
+  border: 4rpx solid rgba(255, 255, 255, 0.3);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+.photo-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 10rpx 12rpx;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0));
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  transition: opacity 0.3s ease;
+}
+
+.photo-info {
+  flex: 1;
+}
+
+.photo-desc {
+  color: #ffffff;
+  font-size: 24rpx;
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-shadow: 0 1rpx 2rpx rgba(0, 0, 0, 0.5);
+}
+
+.photo-time {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 20rpx;
+  margin-top: 4rpx;
+  display: block;
+  text-shadow: 0 1rpx 2rpx rgba(0, 0, 0, 0.5);
+}
+
+.photo-number {
+  position: absolute;
+  top: 10rpx;
+  right: 10rpx;
+  width: 40rpx;
+  height: 40rpx;
+  border-radius: 50%;
+  background-color: rgba(0, 0, 0, 0.4);
+  color: #ffffff;
+  font-size: 22rpx;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* 空状态 */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 100rpx 40rpx;
+  text-align: center;
+}
+
+.empty-image {
+  width: 240rpx;
+  height: 240rpx;
+  margin-bottom: 40rpx;
+  opacity: 0.8;
+}
+
+.empty-title {
+  font-size: 36rpx;
+  font-weight: 500;
+  color: #666666;
+  margin-bottom: 16rpx;
+}
+
+.empty-desc {
+  font-size: 28rpx;
+  color: #999999;
+  line-height: 1.5;
+  margin-bottom: 60rpx;
+}
+
+.add-photo-btn {
+  width: 280rpx;
+  height: 90rpx;
+  line-height: 90rpx;
+  font-size: 32rpx;
+  background-color: #07c160;
+  color: #ffffff;
+  border-radius: 45rpx;
+  box-shadow: 0 6rpx 16rpx rgba(7, 193, 96, 0.3);
+  transition: all 0.2s ease;
+}
+
+.add-photo-btn:active {
+  transform: translateY(2rpx);
+  box-shadow: 0 2rpx 8rpx rgba(7, 193, 96, 0.2);
+}
+
+/* 加载中状态 */
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 100rpx 0;
+}
+
+.loading-animation {
+  margin-bottom: 30rpx;
+}
+
+.loading-spinner {
+  width: 60rpx;
+  height: 60rpx;
+  border: 6rpx solid #f3f3f3;
+  border-top: 6rpx solid #07c160;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loading-text {
+  font-size: 28rpx;
+  color: #999999;
+}
+
+/* 底部工具栏 */
+.bottom-toolbar {
+  padding: 20rpx 30rpx;
+  background-color: #ffffff;
+  border-top: 1rpx solid #eeeeee;
+  z-index: 10;
+}
+
+.toolbar-actions {
+  display: flex;
+  justify-content: space-around;
+}
+
+.action-button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: transparent;
+  padding: 0;
+  line-height: normal;
+  border: none;
+  box-shadow: none;
+  font-size: inherit;
+}
+
+.action-button::after {
+  display: none;
+}
+
+.action-icon {
+  font-size: 44rpx;
+  color: #444444;
+  margin-bottom: 8rpx;
+}
+
+.action-text {
+  font-size: 24rpx;
+  color: #666666;
+}
+
+/* 悬浮按钮 */
+.floating-button {
+  position: fixed;
+  right: 40rpx;
+  bottom: 140rpx;
+  width: 110rpx;
+  height: 110rpx;
+  background-color: #07c160;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 6rpx 20rpx rgba(7, 193, 96, 0.4);
+  z-index: 100;
+  transition: all 0.2s ease;
+}
+
+.floating-button:active {
+  transform: scale(0.95);
+  box-shadow: 0 4rpx 10rpx rgba(7, 193, 96, 0.3);
+}
+
+.float-icon {
+  color: #ffffff;
+  font-size: 70rpx;
+  font-weight: 300;
+  margin-top: -6rpx;
+}
+
+/* 响应式调整 */
+@media screen and (min-width: 768px) {
+  .photo-grid {
+    margin: 0 -10rpx;
+  }
+  
+  .photo-item {
+    width: calc(25% - 20rpx);
+    margin: 10rpx;
+  }
+}
+
+/* 调试信息 */
+.debug-info {
+  margin: 10rpx 0;
+  padding: 10rpx 20rpx;
+  background-color: #f5f5f5;
+  border-radius: 8rpx;
+  font-size: 24rpx;
+  color: #666;
+  line-height: 1.5;
+}
+
+.debug-text {
+  display: block;
+  margin-bottom: 5rpx;
+} 

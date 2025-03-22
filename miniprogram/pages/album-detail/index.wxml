@@ -1,0 +1,105 @@
+<!--pages/album-detail/index.wxml-->
+<view class="album-container">
+  <!-- 顶部导航栏 -->
+  <view class="navigation-bar">
+    <view class="album-info">
+      <text class="album-title">{{albumTitle}}</text>
+      <text class="photo-count" wx:if="{{!isLoading}}">{{photoList.length}}张照片</text>
+    </view>
+    <view class="nav-actions">
+      <view class="action-btn" bindtap="toggleSelectMode" wx:if="{{!isLoading && !isEmpty}}">
+        <text class="action-icon cuIcon-sort"></text>
+      </view>
+      <view class="action-btn" bindtap="toggleDebugMode">
+        <text class="action-icon cuIcon-debug"></text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 照片内容区域 -->
+  <scroll-view class="content-area" scroll-y="true" enable-flex="true" bindscrolltolower="loadMorePhotos" refresher-enabled="true" refresher-triggered="{{isRefreshing}}" bindrefresherrefresh="onPullDownRefresh">
+    <!-- 照片网格 -->
+    <block wx:if="{{!isLoading && !isEmpty}}">
+      <!-- 调试信息 -->
+      <view class="debug-info" wx:if="{{__debug}}">
+        <text class="debug-text">照片总数: {{photoList.length}}</text>
+        <text class="debug-text">有效照片: {{validPhotoCount}}</text>
+      </view>
+      
+      <view class="photo-grid">
+        <view 
+          wx:for="{{photoList}}" 
+          wx:key="id" 
+          class="photo-item {{item._loading ? 'loading' : ''}}" 
+          data-index="{{index}}" 
+          bindtap="previewPhoto"
+          bindlongpress="onPhotoLongPress"
+          style="{{(index + 1) % 3 === 0 ? 'margin-right: 0;' : ''}}"
+        >
+          <image 
+            class="photo-image" 
+            src="{{item.tempFileURL || item.fileID}}" 
+            mode="aspectFill" 
+            lazy-load="true"
+            binderror="onImageError"
+            data-index="{{index}}"
+            data-id="{{item.id || item._id}}"
+          ></image>
+          <view class="photo-loading" wx:if="{{item._loading}}">
+            <view class="loading-spinner"></view>
+          </view>
+          <view class="photo-overlay">
+            <view class="photo-info" wx:if="{{item.desc || item.createTime}}">
+              <text class="photo-desc" wx:if="{{item.desc}}">{{item.desc}}</text>
+              <text class="photo-time" wx:if="{{item.createTime}}">{{item.createTime}}</text>
+            </view>
+            <text class="photo-number">{{index + 1}}</text>
+          </view>
+        </view>
+      </view>
+    </block>
+    
+    <!-- 空状态 -->
+    <block wx:if="{{!isLoading && isEmpty}}">
+      <view class="empty-state">
+        <image class="empty-image" src="/images/empty-album.png" mode="aspectFit"></image>
+        <text class="empty-title">相册还没有照片</text>
+        <text class="empty-desc">点击下方按钮添加照片到这个相册</text>
+        <button class="add-photo-btn" type="primary" bindtap="addNewPhoto">添加照片</button>
+      </view>
+    </block>
+    
+    <!-- 加载中状态 -->
+    <block wx:if="{{isLoading}}">
+      <view class="loading-state">
+        <view class="loading-animation">
+          <view class="loading-spinner"></view>
+        </view>
+        <text class="loading-text">正在加载照片...</text>
+      </view>
+    </block>
+  </scroll-view>
+  
+  <!-- 底部操作栏 -->
+  <view class="bottom-toolbar" wx:if="{{!isEmpty}}">
+    <view class="toolbar-actions">
+      <button class="action-button" bindtap="addNewPhoto">
+        <text class="action-icon cuIcon-add"></text>
+        <text class="action-text">添加照片</text>
+      </button>
+      <button class="action-button" bindtap="downloadPhotos" wx:if="{{!isEmpty}}">
+        <text class="action-icon cuIcon-down"></text>
+        <text class="action-text">下载</text>
+      </button>
+      <button class="action-button" bindtap="shareAlbum" wx:if="{{!isEmpty}}">
+        <text class="action-icon cuIcon-share"></text>
+        <text class="action-text">分享</text>
+      </button>
+    </view>
+  </view>
+  
+  <!-- 悬浮按钮 -->
+  <view class="floating-button" bindtap="addNewPhoto">
+    <text class="float-icon">+</text>
+  </view>
+</view> 

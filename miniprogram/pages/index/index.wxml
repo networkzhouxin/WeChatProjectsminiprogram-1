@@ -1,220 +1,67 @@
 <!--index.wxml-->
-<view class="album-container">
-  <view class="fixed-header">
-    <view class="header">
-      <view class="title">我的相册</view>
+<view class="album-list-container">
+  <view class="header">
+    <view class="title">我的相册</view>
+  </view>
+  
+  <!-- 添加下拉刷新提示 -->
+  <view class="pull-refresh-tip" wx:if="{{refreshing}}">
+    <view class="refresh-icon"></view>
+    <text class="refresh-text">正在刷新...</text>
+  </view>
+  
+  <view class="album-grid">
+    <!-- 新建相册按钮放在第一个位置 -->
+    <view class="album-item add-album" bindtap="addNewAlbum">
+      <view class="album-add-cover">
+        <view class="add-icon">+</view>
+        <view class="add-text">新建相册</view>
+      </view>
     </view>
     
-    <view class="tabs-container">
-      <!-- 添加下拉刷新提示 -->
-      <view class="pull-refresh-tip" wx:if="{{refreshing}}">
-        <view class="refresh-icon"></view>
-        <text class="refresh-text">正在刷新...</text>
-      </view>
-      
-      <view class="tab-header-wrapper">
-        <scroll-view 
-          scroll-x="{{true}}" 
-          class="tab-scroll-view" 
-          scroll-with-animation="{{true}}" 
-          scroll-into-view="{{scrollIntoView}}" 
-          enhanced="{{true}}" 
-          show-scrollbar="{{false}}" 
-          id="tabScrollView"
-          bounces="{{false}}"
-          scroll-animation-duration="300"
-          enable-flex="{{true}}"
-        >
-          <view class="tab-header">
-            <view 
-              class="tab-item {{currentTab === index ? 'active' : ''}}" 
-              wx:for="{{albumList}}" 
-              wx:key="id"
-              data-index="{{index}}"
-              bindtap="onTabChange"
-              bindlongpress="onTabLongPress"
-              id="tab-{{index}}"
-            >
-              <!-- 正在编辑的标签 -->
-              <block wx:if="{{isEditingTab && editingTabIndex === index}}">
-                <input 
-                  class="tab-input" 
-                  value="{{editingTabName}}" 
-                  focus="{{true}}"
-                  bindinput="onTabNameInput"
-                  bindconfirm="confirmTabEdit"
-                  catchfocus="function(){}"
-                  catchblur="confirmTabEdit"
-                  maxlength="10"
-                  auto-focus
-                  adjust-position="{{false}}"
-                />
-              </block>
-              <!-- 普通标签显示 -->
-              <block wx:else>
-                {{item.title}}
-              </block>
-            </view>
-          </view>
-        </scroll-view>
-        
-        <!-- 新增标签按钮固定在右侧 -->
-        <view class="add-tab-fixed" bindtap="addNewTab">
-          <view class="add-icon">+</view>
+    <!-- 相册列表 -->
+    <block wx:for="{{albumList}}" wx:key="id">
+      <view class="album-item" bindtap="onAlbumTap" data-album="{{item}}" bindlongpress="onAlbumLongPress">
+        <view class="album-cover">
+          <image 
+            class="album-image" 
+            src="{{item.cover || '/images/default-album.png'}}" 
+            mode="aspectFill"
+            lazy-load
+          ></image>
         </view>
+        <view class="album-title">{{item.title}}</view>
+        <!-- 相册数量单独作为一行显示 -->
+        <view class="album-count-text">{{item.count}}张</view>
       </view>
-    </view>
-    
-    <view class="upload-button-container">
-      <view class="upload-button" bindtap="uploadImage">
-        <view class="upload-icon">+</view>
-        <view class="upload-text">上传图片</view>
-      </view>
-    </view>
+    </block>
   </view>
   
-  <view class="scrollable-content">
-    <view class="grid-container">
-      <!-- 时间轴形式展示图片 -->
-      <view class="timeline-container">
-        <block wx:for="{{groupedImages}}" wx:key="date" wx:for-item="dateGroup">
-          <view class="date-group">
-            <view class="date-header">
-              <view class="date-line"></view>
-              <view class="date-text">{{dateGroup.formattedDate}}</view>
-              <view class="date-line"></view>
-            </view>
-            
-            <view class="date-images-grid">
-              <view 
-                class="image-item"
-                wx:for="{{dateGroup.images}}" 
-                wx:key="id"
-                data-id="{{item.id}}" 
-              >
-                <view class="image-card">
-                  <view class="image-wrapper" bindtap="onImageTap" data-id="{{item.id}}">
-                    <image 
-                      class="album-image"
-                      src="{{item.src}}" 
-                      mode="aspectFill"
-                      lazy-load
-                      show-menu-by-longpress
-                    />
-                  </view>
-                  <view class="image-desc-container">
-                    <input 
-                      class="image-desc" 
-                      value="{{item.desc}}" 
-                      data-id="{{item.id}}" 
-                      bindinput="onDescChange" 
-                      bindconfirm="onDescConfirm"
-                      placeholder="添加描述..."
-                      maxlength="20"
-                    />
-                    <view class="edit-icon" catchtap="onEditDesc" data-id="{{item.id}}">✎</view>
-                  </view>
-                </view>
-              </view>
-            </view>
-          </view>
-        </block>
-      </view>
-      
-      <view class="empty-state" wx:if="{{groupedImages.length === 0}}">
-        <view class="empty-text">暂无相片</view>
-      </view>
-
-      <view class="loading-container" wx:if="{{isLoading}}">
-        <view class="loading-icon"></view>
-        <text class="loading-text">加载中...</text>
-      </view>
-    </view>
+  <!-- 空状态 -->
+  <view class="empty-state" wx:if="{{albumList.length === 0 && !refreshing}}">
+    <view class="empty-text">暂无相册</view>
+    <view class="empty-subtext">点击"+"创建新相册</view>
   </view>
   
-  <!-- 标签操作菜单 -->
-  <view class="tab-actions-mask" wx:if="{{showTabActions}}" bindtap="closeTabActions">
-    <view class="tab-actions" catchtap="function(e){e.stopPropagation();}">
-      <view class="action-title">标签操作</view>
-      <view class="action-item" bindtap="startEditTab">
-        <view class="action-icon">✎</view>
-        <view class="action-text">重命名</view>
-      </view>
-      <view class="action-item delete" bindtap="deleteTab">
-        <view class="action-icon">🗑️</view>
-        <view class="action-text">删除</view>
-      </view>
-      <view class="action-cancel" bindtap="closeTabActions">取消</view>
-    </view>
-  </view>
-  
-  <!-- 编辑标签的确认按钮 -->
-  <view class="edit-confirm" wx:if="{{isEditingTab}}">
-    <view class="confirm-btn" catchtap="confirmTabEdit">确定</view>
-  </view>
-
-  <!-- 添加自定义新建标签弹窗 -->
-  <view class="custom-modal-mask" wx:if="{{showAddTagModal}}" bindtap="closeAddTagModal">
+  <!-- 添加相册弹窗 -->
+  <view class="custom-modal-mask" wx:if="{{showAddAlbumModal}}" bindtap="closeAddAlbumModal">
     <view class="custom-modal" catchtap="function(e){e.stopPropagation();}">
-      <view class="custom-modal-title">新建标签</view>
+      <view class="custom-modal-title">{{isRenaming ? '重命名相册' : '新建相册'}}</view>
       <view class="custom-modal-content">
         <input 
           class="custom-modal-input" 
-          placeholder="请输入新标签名称" 
-          value="{{newTagName}}"
-          bindinput="onNewTagNameInput"
+          placeholder="请输入相册名称" 
+          value="{{newAlbumName}}"
+          bindinput="onNewAlbumNameInput"
           focus="{{true}}"
-          maxlength="10"
+          maxlength="15"
           confirm-type="done"
-          bindconfirm="confirmAddTag"
+          bindconfirm="confirmAddAlbum"
         />
       </view>
       <view class="custom-modal-footer">
-        <view class="custom-modal-btn cancel" bindtap="closeAddTagModal">取消</view>
-        <view class="custom-modal-btn confirm" bindtap="confirmAddTag">确定</view>
-      </view>
-    </view>
-  </view>
-  
-  <!-- 添加图片上传表单弹窗 -->
-  <view class="custom-modal-mask" wx:if="{{showUploadForm}}" bindtap="closeUploadForm">
-    <view class="custom-modal upload-form" catchtap="function(e){e.stopPropagation();}">
-      <view class="custom-modal-title">上传图片</view>
-      
-      <view class="custom-modal-content">
-        <view class="upload-preview-container" wx:if="{{tempImageFiles.length > 0}}">
-          <scroll-view scroll-x class="upload-preview-scroll">
-            <view class="upload-preview-list">
-              <view class="upload-preview-item" wx:for="{{tempImageFiles}}" wx:key="index">
-                <image src="{{item.tempFilePath}}" mode="aspectFill" class="preview-image"></image>
-                <view class="preview-delete" catchtap="removeTempImage" data-index="{{index}}">×</view>
-              </view>
-              <view class="upload-preview-add" bindtap="addMoreImages" wx:if="{{tempImageFiles.length < 9}}">
-                <view class="add-icon">+</view>
-              </view>
-            </view>
-          </scroll-view>
-        </view>
-        
-        <view class="upload-empty" bindtap="chooseImages" wx:if="{{tempImageFiles.length === 0}}">
-          <view class="upload-icon">+</view>
-          <view class="upload-text">选择图片</view>
-        </view>
-        
-        <view class="form-item">
-          <view class="form-label">所属标签</view>
-          <view class="form-value tag-value">{{albumList[currentTab].title}}</view>
-        </view>
-        
-        <view class="form-item">
-          <view class="form-label">图片描述</view>
-          <input class="form-input" placeholder="请输入图片描述" value="{{uploadDesc}}" bindinput="onUploadDescInput" maxlength="30" />
-        </view>
-      </view>
-      
-      <view class="custom-modal-footer">
-        <view class="custom-modal-btn cancel" bindtap="closeUploadForm">取消</view>
-        <view class="custom-modal-btn confirm {{tempImageFiles.length === 0 ? 'disabled' : ''}}" bindtap="confirmUpload">上传</view>
+        <view class="custom-modal-btn cancel" bindtap="closeAddAlbumModal">取消</view>
+        <view class="custom-modal-btn confirm" bindtap="confirmAddAlbum">确定</view>
       </view>
     </view>
   </view>

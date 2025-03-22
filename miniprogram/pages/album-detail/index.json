@@ -1,0 +1,9 @@
+{
+  "navigationBarTitleText": "相册详情",
+  "enablePullDownRefresh": true,
+  "backgroundColor": "#f9f9f9",
+  "backgroundTextStyle": "dark",
+  "usingComponents": {
+    "mp-icon": "weui-miniprogram/icon/icon"
+  }
+} 
