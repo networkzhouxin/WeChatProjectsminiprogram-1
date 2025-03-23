@@ -5,7 +5,7 @@ Page({
     albumId: '', // 当前相册ID
     albumTitle: '', // 当前相册标题
     isSubmitting: false, // 是否正在提交
-    compressed: false // 默认不压缩照片
+    currentPhotoIndex: 0 // 当前显示的照片索引
   },
 
   onLoad(options) {
@@ -19,7 +19,7 @@ Page({
       
       // 设置导航栏标题
       wx.setNavigationBarTitle({
-        title: `上传到 ${options.albumTitle}`
+        title: `上传到${options.albumTitle}`
       });
     } else {
       // 默认导航栏标题
@@ -29,80 +29,116 @@ Page({
     }
   },
 
-  // 选择照片 - 修改为支持多张照片
-  choosePhoto() {
-    const currentCount = this.data.tempFilePaths.length;
-    const remainCount = 9 - currentCount;
+  // 处理照片拖动
+  onDragPhoto(e) {
+    const { index } = e.currentTarget.dataset;
+    const { source, x, y } = e.detail;
     
-    if (remainCount <= 0) {
-      wx.showToast({
-        title: '最多只能选择9张照片',
-        icon: 'none'
-      });
-      return;
+    // 只处理拖动结束的事件
+    if (source === 'touch-out') {
+      // 计算新的位置索引
+      const newIndex = this.calculateNewIndex(x, y);
+      if (newIndex !== index && newIndex >= 0 && newIndex < this.data.tempFilePaths.length) {
+        // 更新照片顺序
+        const tempFilePaths = [...this.data.tempFilePaths];
+        const [movedItem] = tempFilePaths.splice(index, 1);
+        tempFilePaths.splice(newIndex, 0, movedItem);
+        
+        this.setData({
+          tempFilePaths,
+          currentPhotoIndex: newIndex
+        });
+      }
     }
-    
+  },
+
+  // 计算新的位置索引
+  calculateNewIndex(x, y) {
+    const itemWidth = wx.getSystemInfoSync().windowWidth / 3;
+    const itemHeight = 220; // rpx转px，约等于110px
+    const row = Math.floor(y / itemHeight);
+    const col = Math.floor(x / itemWidth);
+    return row * 3 + col;
+  },
+
+  // 选择照片
+  choosePhoto() {
     wx.chooseImage({
-      count: remainCount, // 最多可选剩余数量
-      sizeType: this.data.compressed ? ['compressed'] : ['original'],
+      count: 9 - this.data.tempFilePaths.length,
+      sizeType: ['original'],
       sourceType: ['album', 'camera'],
       success: (res) => {
-        console.log('选择照片成功:', res.tempFilePaths);
-        // 将新选择的照片添加到已有照片数组
-        const newPaths = [...this.data.tempFilePaths, ...res.tempFilePaths];
+        const newPaths = res.tempFilePaths;
         this.setData({
-          tempFilePaths: newPaths
-        }, () => {
-          console.log('更新后的照片数组:', this.data.tempFilePaths);
+          tempFilePaths: [...this.data.tempFilePaths, ...newPaths]
         });
-      },
-      fail: (err) => {
-        console.error('选择照片失败:', err);
       }
     });
   },
 
-  // 删除已选择的照片
+  // 删除照片
   deletePhoto(e) {
-    const index = e.currentTarget.dataset.index;
+    const { index } = e.currentTarget.dataset;
     const tempFilePaths = [...this.data.tempFilePaths];
     tempFilePaths.splice(index, 1);
+    this.setData({ tempFilePaths });
+  },
+
+  // 切换当前显示的照片
+  switchPhoto(e) {
+    const index = e.currentTarget.dataset.index;
     this.setData({
-      tempFilePaths
+      currentPhotoIndex: index
     });
   },
 
-  // 压缩选项改变
-  onCompressedChange(e) {
-    this.setData({
-      compressed: e.detail.value
-    });
-  },
-
-  // 照片描述输入
+  // 更新照片描述
   onPhotoDescInput(e) {
     this.setData({
       photoDesc: e.detail.value
     });
   },
 
-  // 提交表单 - 修改为支持多张照片上传
+  // 取消上传
+  cancelUpload() {
+    if (this.data.tempFilePaths.length > 0) {
+      // 有照片时显示确认弹窗
+      wx.showModal({
+        title: '提示',
+        content: '确定要取消上传吗？',
+        success: (res) => {
+          if (res.confirm) {
+            wx.navigateBack();
+          }
+        }
+      });
+    } else {
+      // 没有照片时直接返回
+      wx.navigateBack();
+    }
+  },
+
+  // 提交照片
   submitPhoto() {
-    const { tempFilePaths, photoDesc, albumTitle } = this.data;
+    const { tempFilePaths, photoDesc, albumId, albumTitle } = this.data;
 
     if (tempFilePaths.length === 0) {
       wx.showToast({
-        title: '请先选择照片',
+        title: '请选择至少一张照片',
         icon: 'none'
       });
       return;
     }
 
-    // 设置提交状态
-    this.setData({
-      isSubmitting: true
-    });
+    if (!albumTitle) {
+      wx.showToast({
+        title: '相册信息缺失',
+        icon: 'none'
+      });
+      return;
+    }
 
+    this.setData({ isSubmitting: true });
     wx.showLoading({
       title: '上传中...',
       mask: true
@@ -115,94 +151,67 @@ Page({
 
     // 遍历上传每一张照片
     tempFilePaths.forEach((filePath, index) => {
-      // 获取文件扩展名
       const ext = filePath.split('.').pop();
-      
-      // 生成云存储路径
       const cloudPath = `${Date.now()}-${Math.floor(Math.random() * 1000)}-${index}.${ext}`;
 
-      // 上传到云存储
       wx.cloud.uploadFile({
         cloudPath,
         filePath,
         success: (res) => {
           console.log(`上传文件成功 ${index + 1}/${totalCount}`, res);
           
-          // 获取文件ID
-          const fileID = res.fileID;
-          
-          // 保存照片记录到数据库
-          this.savePhotoToDatabase(fileID, index, totalCount);
-          successCount++;
-          
-          // 检查是否全部完成
-          this.checkUploadComplete(successCount, failCount, totalCount);
+          // 调用云函数保存照片记录
+          wx.cloud.callFunction({
+            name: 'addPhoto',
+            data: {
+              fileID: res.fileID,
+              tag: albumTitle,
+              albumId: albumId,
+              desc: photoDesc
+            }
+          }).then(dbRes => {
+            console.log(`照片记录保存成功 ${index + 1}/${totalCount}:`, dbRes);
+            successCount++;
+            this.checkUploadComplete(successCount, failCount, totalCount);
+          }).catch(err => {
+            console.error(`照片记录保存失败 ${index + 1}/${totalCount}:`, err);
+            failCount++;
+            this.checkUploadComplete(successCount, failCount, totalCount);
+          });
         },
         fail: (err) => {
           console.error(`上传文件失败 ${index + 1}/${totalCount}`, err);
           failCount++;
-          
-          // 检查是否全部完成
           this.checkUploadComplete(successCount, failCount, totalCount);
         }
       });
     });
   },
 
-  // 检查上传是否全部完成
+  // 检查上传是否完成
   checkUploadComplete(successCount, failCount, totalCount) {
     if (successCount + failCount === totalCount) {
+      this.setData({ isSubmitting: false });
       wx.hideLoading();
-      
-      if (successCount > 0) {
+
+      if (failCount > 0) {
         wx.showToast({
-          title: `成功上传${successCount}张照片`,
-          icon: 'success'
+          title: `${successCount}张上传成功，${failCount}张失败`,
+          icon: 'none',
+          duration: 2000
         });
-        
-        // 重置表单
-        this.setData({
-          tempFilePaths: [],
-          photoDesc: '',
-          isSubmitting: false
-        });
-        
-        // 如果全部成功，延迟返回上一页
-        if (successCount === totalCount) {
-          setTimeout(() => {
-            wx.navigateBack();
-          }, 1500);
-        }
       } else {
         wx.showToast({
-          title: '上传失败',
-          icon: 'none'
-        });
-        
-        this.setData({
-          isSubmitting: false
+          title: '上传成功',
+          icon: 'success',
+          duration: 2000
         });
       }
+
+      // 延迟返回，让用户看到提示
+      setTimeout(() => {
+        wx.navigateBack();
+      }, 2000);
     }
-  },
-
-  // 保存照片记录到数据库
-  savePhotoToDatabase(fileID, index, totalCount) {
-    const { photoDesc, albumTitle, albumId } = this.data;
-
-    // 调用现有的云函数添加照片
-    wx.cloud.callFunction({
-      name: 'addPhoto',
-      data: {
-        fileID,
-        tag: albumTitle, // 使用当前相册标题作为标签
-        albumId: albumId, // 添加相册ID
-        desc: photoDesc
-      }
-    }).then(res => {
-      console.log(`照片 ${index + 1}/${totalCount} 保存到数据库成功`, res);
-    }).catch(err => {
-      console.error(`照片 ${index + 1}/${totalCount} 保存到数据库失败:`, err);
-    });
   }
 }); 

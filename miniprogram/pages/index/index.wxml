@@ -1,71 +1,56 @@
 <!--index.wxml-->
-<view class="album-list-container">
-  <view class="header">
-    <view class="title">我的相册</view>
-    <!-- 添加强制刷新按钮 -->
-    <view class="refresh-btn" bindtap="forceClearAndRefreshAlbums">
-      <text class="refresh-text-btn">同步</text>
-    </view>
-  </view>
-  
-  <!-- 添加下拉刷新提示 -->
-  <view class="pull-refresh-tip" wx:if="{{refreshing}}">
-    <view class="refresh-icon"></view>
-    <text class="refresh-text">正在刷新...</text>
-  </view>
-  
-  <view class="album-grid">
-    <!-- 新建相册按钮放在第一个位置 -->
+<view class="container">
+  <!-- 相册列表 -->
+  <view class="album-list">
+    <!-- 新建相册按钮 -->
     <view class="album-item add-album" bindtap="addNewAlbum">
-      <view class="album-add-cover">
-        <view class="add-icon">+</view>
-        <view class="add-text">新建相册</view>
+      <view class="album-cover">
+        <text>+</text>
+        <text class="add-text">新建相册</text>
       </view>
     </view>
-    
-    <!-- 相册列表 -->
-    <block wx:for="{{albumList}}" wx:key="id">
-      <view class="album-item" bindtap="onAlbumTap" data-album="{{item}}" bindlongpress="onAlbumLongPress">
-        <view class="album-cover">
-          <image 
-            class="album-image" 
-            src="{{item.cover || '/images/default-album.png'}}" 
-            mode="aspectFill"
-            lazy-load
-          ></image>
-        </view>
-        <view class="album-title">{{item.title}}</view>
-        <!-- 相册数量单独作为一行显示 -->
-        <view class="album-count-text">{{item.count}}张</view>
+
+    <!-- 相册列表项 -->
+    <view class="album-item" 
+      wx:for="{{albumList}}" 
+      wx:key="id"
+      bindtap="onAlbumTap" 
+      bindlongpress="onAlbumLongPress"
+      data-album="{{item}}">
+      <view class="album-cover">
+        <image src="{{item.cover}}" mode="aspectFill"></image>
       </view>
-    </block>
+      <view class="album-info">
+        <text class="album-title">{{item.title}}</text>
+        <text class="album-count">{{item.count}}张</text>
+      </view>
+    </view>
   </view>
-  
+
   <!-- 空状态 -->
-  <view class="empty-state" wx:if="{{albumList.length === 0 && !refreshing}}">
-    <view class="empty-text">暂无相册</view>
-    <view class="empty-subtext">点击"+"创建新相册</view>
+  <view class="empty-state" wx:if="{{albumList.length === 0 && !isLoading}}">
+    <text class="empty-text">暂无相册</text>
+    <text class="empty-subtext">点击"+"创建新相册</text>
   </view>
-  
-  <!-- 添加相册弹窗 -->
-  <view class="custom-modal-mask" wx:if="{{showAddAlbumModal}}" bindtap="closeAddAlbumModal">
-    <view class="custom-modal" catchtap="function(e){e.stopPropagation();}">
-      <view class="custom-modal-title">{{isRenaming ? '重命名相册' : '新建相册'}}</view>
-      <view class="custom-modal-content">
-        <input 
-          class="custom-modal-input" 
+
+  <!-- 新建/重命名相册弹窗 -->
+  <view class="modal" wx:if="{{showAddAlbumModal}}">
+    <view class="modal-mask" bindtap="closeAddAlbumModal"></view>
+    <view class="modal-content">
+      <view class="modal-header">
+        <text>{{isRenaming ? '重命名相册' : '新建相册'}}</text>
+      </view>
+      <view class="modal-body">
+        <input class="album-name-input" 
           placeholder="请输入相册名称" 
           value="{{newAlbumName}}"
           bindinput="onNewAlbumNameInput"
           focus="{{true}}"
-          maxlength="15"
-          confirm-type="done"
-          bindconfirm="confirmAddAlbum"
         />
       </view>
-      <view class="custom-modal-footer">
-        <view class="custom-modal-btn cancel" bindtap="closeAddAlbumModal">取消</view>
-        <view class="custom-modal-btn confirm" bindtap="confirmAddAlbum">确定</view>
+      <view class="modal-footer">
+        <button class="btn-cancel" bindtap="closeAddAlbumModal">取消</button>
+        <button class="btn-confirm" bindtap="confirmAddAlbum">确定</button>
       </view>
     </view>
   </view>

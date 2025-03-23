@@ -19,7 +19,8 @@ Page({
     groupedPhotoList: [],
     // 今天、昨天、以前的日期
     today: '',
-    yesterday: ''
+    yesterday: '',
+    needRefresh: false // 是否需要刷新数据
   },
 
   onLoad(options) {
@@ -76,21 +77,12 @@ Page({
 
   // 页面显示时刷新数据
   onShow() {
-    // 确保在有相册ID的情况下才加载数据
-    if (this.data.albumId) {
-      console.log('页面显示，刷新相册数据:', this.data.albumTitle);
-      
-      // 显示轻提示，避免用户等待
-      wx.showToast({
-        title: '刷新数据...',
-        icon: 'loading',
-        duration: 500
+    // 只有在需要刷新时才重新加载数据
+    if (this.data.needRefresh) {
+      console.log('需要刷新相册数据:', this.data.albumTitle);
+      this.loadPhotoList().then(() => {
+        this.setData({ needRefresh: false });
       });
-      
-      // 延迟执行，避免页面闪烁
-      setTimeout(() => {
-        this.loadPhotoList();
-      }, 300);
     }
   },
 
@@ -453,9 +445,14 @@ Page({
         // 从列表中移除已删除的照片
         const photoList = this.data.photoList.filter(item => item.id !== photo.id);
         
+        // 重新生成分组数据
+        const groupedPhotoList = this.groupPhotosByDate(photoList);
+        
         this.setData({
           photoList,
-          isEmpty: photoList.length === 0
+          groupedPhotoList,
+          isEmpty: photoList.length === 0,
+          needRefresh: false // 已经更新了数据，不需要刷新
         });
       } else {
         wx.hideLoading();
@@ -558,6 +555,9 @@ Page({
     wx.navigateTo({
       url: `/pages/upload/index?albumId=${albumId}&albumTitle=${albumTitle}`
     });
+    
+    // 设置需要刷新标记
+    this.setData({ needRefresh: true });
   },
 
   // 切换调试模式
