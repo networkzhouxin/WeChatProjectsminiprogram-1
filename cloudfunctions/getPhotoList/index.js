@@ -24,7 +24,20 @@ exports.main = async (event, context) => {
     console.log('未指定标签，查询所有照片');
   }
   
+  // 打印查询条件对象
+  console.log('数据库查询条件:', JSON.stringify(condition));
+  
   try {
+    // 先检查albums集合中是否存在该相册
+    if (tag) {
+      console.log('检查albums集合中是否存在相册:', tag);
+      const albumQueryResult = await db.collection('albums').where({
+        title: tag
+      }).get();
+      
+      console.log('albums集合查询结果:', JSON.stringify(albumQueryResult.data));
+    }
+    
     // 计算集合总数
     const countResult = await db.collection('photos')
       .where(condition)

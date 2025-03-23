@@ -2,6 +2,10 @@
 <view class="album-list-container">
   <view class="header">
     <view class="title">我的相册</view>
+    <!-- 添加强制刷新按钮 -->
+    <view class="refresh-btn" bindtap="forceClearAndRefreshAlbums">
+      <text class="refresh-text-btn">同步</text>
+    </view>
   </view>
   
   <!-- 添加下拉刷新提示 -->

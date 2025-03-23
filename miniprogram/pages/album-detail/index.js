@@ -13,7 +13,13 @@ Page({
     currentPhoto: null, // 当前选中的照片
     isRefreshing: false, // 是否正在下拉刷新
     __debug: false, // 调试模式
-    validPhotoCount: 0 // 有效照片数量
+    validPhotoCount: 0, // 有效照片数量
+    
+    // 新增: 分组后的照片列表
+    groupedPhotoList: [],
+    // 今天、昨天、以前的日期
+    today: '',
+    yesterday: ''
   },
 
   onLoad(options) {
@@ -30,6 +36,9 @@ Page({
         title: this.data.albumTitle
       });
 
+      // 设置今天和昨天的日期
+      this.setTodayAndYesterday();
+      
       // 加载照片列表
       this.loadPhotoList();
     } else {
@@ -43,6 +52,26 @@ Page({
         wx.navigateBack();
       }, 1500);
     }
+  },
+  
+  // 设置今天和昨天的日期
+  setTodayAndYesterday() {
+    const now = new Date();
+    
+    // 格式化今天的日期 YYYY/MM/DD
+    const today = `${now.getFullYear()}/${String(now.getMonth() + 1).padStart(2, '0')}/${String(now.getDate()).padStart(2, '0')}`;
+    
+    // 计算昨天
+    const yesterday = new Date(now);
+    yesterday.setDate(now.getDate() - 1);
+    const yesterdayStr = `${yesterday.getFullYear()}/${String(yesterday.getMonth() + 1).padStart(2, '0')}/${String(yesterday.getDate()).padStart(2, '0')}`;
+    
+    this.setData({
+      today,
+      yesterday: yesterdayStr
+    });
+    
+    console.log('设置今天和昨天:', today, yesterdayStr);
   },
 
   // 页面显示时刷新数据
@@ -77,6 +106,84 @@ Page({
       });
       wx.stopPullDownRefresh();
     });
+  },
+
+  // 根据日期对照片进行分组
+  groupPhotosByDate(photoList) {
+    // 确保照片列表存在
+    if (!photoList || photoList.length === 0) {
+      return [];
+    }
+
+    const { today, yesterday } = this.data;
+    const groupMap = new Map();
+
+    // 遍历照片并按日期分组
+    photoList.forEach(photo => {
+      // 确保每个照片有创建时间
+      let dateStr = '未知时间';
+      let sortDate = new Date(0); // 默认时间戳为0的日期
+      
+      // 从createTime提取日期 - 支持多种格式
+      if (photo.createTime) {
+        let createDate;
+        
+        // 尝试解析照片创建时间
+        if (typeof photo.createTime === 'string') {
+          // 如果是字符串，尝试解析
+          createDate = new Date(photo.createTime);
+        } else if (photo.createTime instanceof Date) {
+          // 如果已经是Date对象
+          createDate = photo.createTime;
+        } else if (photo.createTime._seconds) {
+          // Firestore时间戳
+          createDate = new Date(photo.createTime._seconds * 1000);
+        }
+        
+        // 如果成功解析了日期
+        if (createDate && !isNaN(createDate.getTime())) {
+          sortDate = createDate;
+          
+          // 格式化为 YYYY/MM/DD
+          dateStr = `${createDate.getFullYear()}/${String(createDate.getMonth() + 1).padStart(2, '0')}/${String(createDate.getDate()).padStart(2, '0')}`;
+          
+          // 替换为"今天"或"昨天"
+          if (dateStr === today) {
+            dateStr = '今天';
+          } else if (dateStr === yesterday) {
+            dateStr = '昨天';
+          }
+        }
+      }
+      
+      // 将照片添加到对应日期组
+      if (!groupMap.has(dateStr)) {
+        groupMap.set(dateStr, {
+          title: dateStr,
+          sortDate: sortDate, // 用于排序
+          items: []
+        });
+      }
+      
+      groupMap.get(dateStr).items.push(photo);
+    });
+    
+    // 将Map转换为数组
+    let groupArray = Array.from(groupMap.values());
+    
+    // 按日期从新到旧排序
+    groupArray.sort((a, b) => b.sortDate - a.sortDate);
+    
+    // 每个组内的照片也按创建时间从新到旧排序
+    groupArray.forEach(group => {
+      group.items.sort((a, b) => {
+        const timeA = a.createTime ? (a.createTime._seconds ? a.createTime._seconds * 1000 : new Date(a.createTime).getTime()) : 0;
+        const timeB = b.createTime ? (b.createTime._seconds ? b.createTime._seconds * 1000 : new Date(b.createTime).getTime()) : 0;
+        return timeB - timeA;
+      });
+    });
+    
+    return groupArray;
   },
 
   // 加载照片列表
@@ -128,9 +235,13 @@ Page({
         // 计算有效照片数量
         const validPhotoCount = processedPhotoList.filter(photo => photo.fileID && photo.fileID.trim() !== '').length;
         
+        // 按照上传时间对照片进行分组
+        const groupedPhotoList = this.groupPhotosByDate(processedPhotoList);
+        
         // 设置照片列表和状态
         this.setData({
           photoList: processedPhotoList,
+          groupedPhotoList: groupedPhotoList,
           isEmpty: processedPhotoList.length === 0,
           isLoading: false,
           validPhotoCount: validPhotoCount
@@ -142,6 +253,7 @@ Page({
         console.log('没有获取到照片数据');
         this.setData({
           photoList: [],
+          groupedPhotoList: [],
           isEmpty: true,
           isLoading: false,
           validPhotoCount: 0
@@ -158,6 +270,7 @@ Page({
       
       this.setData({
         photoList: [],
+        groupedPhotoList: [],
         isEmpty: true,
         isLoading: false,
         validPhotoCount: 0
@@ -218,16 +331,29 @@ Page({
   // 预览照片
   previewPhoto(e) {
     const index = e.currentTarget.dataset.index;
-    const photos = this.data.photoList;
+    const dateGroup = e.currentTarget.dataset.dateGroup;
     
-    // 获取所有图片的临时链接或fileID
-    const urls = photos.map(photo => photo.tempFileURL || photo.fileID || '');
+    // 在对应的日期组中查找照片
+    const group = this.data.groupedPhotoList.find(g => g.title === dateGroup);
+    if (!group) {
+      console.error('找不到对应的日期组:', dateGroup);
+      return;
+    }
+    
+    const photo = group.items[index];
+    if (!photo) {
+      console.error('找不到对应的照片:', index);
+      return;
+    }
+    
+    // 找到当前组中所有照片的URL
+    const urls = group.items.map(photo => photo.tempFileURL || photo.fileID || '');
     
     // 过滤掉空链接
     const validUrls = urls.filter(url => url && url.trim() !== '');
     
     // 确保当前图片URL有效
-    const currentUrl = urls[index];
+    const currentUrl = photo.tempFileURL || photo.fileID || '';
     
     if (validUrls.length > 0 && currentUrl && currentUrl.trim() !== '') {
       console.log('预览图片:', currentUrl);
@@ -246,7 +372,20 @@ Page({
   // 长按照片显示操作菜单
   onPhotoLongPress(e) {
     const index = e.currentTarget.dataset.index;
-    const photo = this.data.photoList[index];
+    const dateGroup = e.currentTarget.dataset.dateGroup;
+    
+    // 在对应的日期组中查找照片
+    const group = this.data.groupedPhotoList.find(g => g.title === dateGroup);
+    if (!group) {
+      console.error('找不到对应的日期组:', dateGroup);
+      return;
+    }
+    
+    const photo = group.items[index];
+    if (!photo) {
+      console.error('找不到对应的照片:', index);
+      return;
+    }
     
     this.setData({
       currentPhoto: photo
@@ -341,61 +480,73 @@ Page({
   // 处理图片加载错误
   onImageError(e) {
     const index = e.currentTarget.dataset.index;
-    const photoId = e.currentTarget.dataset.id;
-    const photoList = this.data.photoList;
+    const dateGroup = e.currentTarget.dataset.dateGroup;
     
-    console.error('图片加载错误:', 'index:', index, 'id:', photoId);
+    // 在对应的日期组中查找照片
+    const groupIndex = this.data.groupedPhotoList.findIndex(g => g.title === dateGroup);
+    if (groupIndex < 0) {
+      console.error('找不到对应的日期组:', dateGroup);
+      return;
+    }
     
-    if (index >= 0 && index < photoList.length) {
-      const photo = photoList[index];
-      console.log('图片加载失败:', photo.id, '尝试使用fileID');
+    const photo = this.data.groupedPhotoList[groupIndex].items[index];
+    if (!photo) {
+      console.error('找不到对应的照片:', index);
+      return;
+    }
+    
+    const photoId = photo.id || photo._id;
+    console.error('图片加载错误:', 'group:', dateGroup, 'index:', index, 'id:', photoId);
+    
+    if (photo.fileID && photo.fileID.trim() !== '') {
+      console.log('图片加载失败:', photoId, '尝试使用fileID');
       
-      // 尝试直接使用fileID
-      if (photo.fileID && photo.fileID.trim() !== '') {
-        // 创建新的数组以触发视图更新
-        const newPhotoList = [...photoList];
-        newPhotoList[index] = {
-          ...photo,
-          tempFileURL: photo.fileID, // 将临时URL设置为fileID
-          _retryCount: (photo._retryCount || 0) + 1
-        };
+      // 创建新的数组以触发视图更新
+      const newGroupedPhotoList = [...this.data.groupedPhotoList];
+      const newPhoto = {
+        ...photo,
+        tempFileURL: photo.fileID, // 将临时URL设置为fileID
+        _retryCount: (photo._retryCount || 0) + 1
+      };
+      
+      // 更新照片
+      newGroupedPhotoList[groupIndex].items[index] = newPhoto;
+      
+      // 如果已经重试了两次还是失败，尝试重新生成临时URL
+      if (newPhoto._retryCount > 2) {
+        console.log('多次重试失败，尝试重新获取临时链接');
         
-        // 如果已经重试了两次还是失败，尝试重新生成临时URL
-        if (newPhotoList[index]._retryCount > 2) {
-          console.log('多次重试失败，尝试重新获取临时链接');
-          
-          // 使用fileHelper获取新的临时链接
-          fileHelper.getTempFileURL(photo.fileID)
-            .then(tempUrl => {
-              console.log('重新获取临时链接成功:', tempUrl);
+        // 使用fileHelper获取新的临时链接
+        fileHelper.getTempFileURL(photo.fileID)
+          .then(tempUrl => {
+            console.log('重新获取临时链接成功:', tempUrl);
+            
+            // 更新临时链接
+            const updatedGroupedPhotoList = [...this.data.groupedPhotoList];
+            if (updatedGroupedPhotoList[groupIndex].items[index]) {
+              updatedGroupedPhotoList[groupIndex].items[index].tempFileURL = tempUrl;
+              updatedGroupedPhotoList[groupIndex].items[index]._retryCount = 0;
               
-              // 更新临时链接
-              const updatedPhotoList = [...this.data.photoList];
-              if (updatedPhotoList[index]) {
-                updatedPhotoList[index].tempFileURL = tempUrl;
-                updatedPhotoList[index]._retryCount = 0;
-                
-                this.setData({
-                  photoList: updatedPhotoList
-                });
-              }
-            })
-            .catch(err => {
-              console.error('重新获取临时链接失败:', err);
-              // 直接设回fileID
               this.setData({
-                photoList: newPhotoList
+                groupedPhotoList: updatedGroupedPhotoList
               });
+            }
+          })
+          .catch(err => {
+            console.error('重新获取临时链接失败:', err);
+            // 直接设回fileID
+            this.setData({
+              groupedPhotoList: newGroupedPhotoList
             });
-        } else {
-          // 普通重试
-          this.setData({
-            photoList: newPhotoList
           });
-        }
       } else {
-        console.error('照片没有有效的fileID，无法显示');
+        // 普通重试
+        this.setData({
+          groupedPhotoList: newGroupedPhotoList
+        });
       }
+    } else {
+      console.error('照片没有有效的fileID，无法显示');
     }
   },
 
