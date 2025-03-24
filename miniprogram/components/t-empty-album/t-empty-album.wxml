@@ -1,12 +1,14 @@
-<view class="t-empty-album">
+<view class="t-empty-album" bindtap="onTap">
   <view class="album-container">
-    <view class="empty-icon">
-      <view class="icon-image">
-        <view class="icon-detail"></view>
+    <view class="empty-content">
+      <view class="icon-wrapper">
+        <view class="icon-image">
+          <view class="icon-mountain"></view>
+          <view class="icon-sun"></view>
+        </view>
       </view>
-      <view class="icon-plus"></view>
+      <view class="album-title">{{albumTitle || '创建相册'}}</view>
+      <view class="album-count">{{countText}}</view>
     </view>
-    <view class="album-title" wx:if="{{title}}">{{title}}</view>
-    <view class="album-count" wx:if="{{count > 0}}">{{count}}张</view>
   </view>
 </view> 

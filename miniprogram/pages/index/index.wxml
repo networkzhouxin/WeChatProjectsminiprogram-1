@@ -11,25 +11,14 @@
     </view>
 
     <!-- 相册列表项 -->
-    <view class="album-item" 
-      wx:for="{{albumList}}" 
-      wx:key="id"
-      bindtap="onAlbumTap" 
-      bindlongpress="onAlbumLongPress"
-      data-album="{{item}}">
-      <!-- 使用TDesign的空相册组件 -->
+    <view class="album-item" wx:if="{{item.title !== '默认相册'}}" wx:for="{{albums}}" wx:key="id" bindtap="onAlbumTap" data-id="{{item.id}}" data-title="{{item.title}}" bindlongpress="onAlbumLongPress" data-album="{{item}}">
       <view class="album-cover">
-        <t-empty-album 
-          wx:if="{{item.cover === '/images/default-album.png' || !item.cover}}"
-          title="{{item.title}}"
-          count="{{item.count}}"
-        ></t-empty-album>
-        <!-- 显示实际相册封面 -->
-        <image wx:else src="{{item.cover}}" mode="aspectFill"></image>
+        <image wx:if="{{item.coverUrl}}" lazy-load src="{{item.coverUrl}}" mode="aspectFill"></image>
+        <t-empty-album wx:else albumTitle="{{item.title}}" count="{{item.photoCount}}" bind:click="onAlbumTap" data-id="{{item.id}}" data-title="{{item.title}}"></t-empty-album>
       </view>
       <view class="album-info">
-        <text class="album-title">{{item.title}}</text>
-        <text class="album-count">{{item.count}}张</text>
+        <view class="album-title">{{item.title}}</view>
+        <view class="album-count">{{item.photoCount || 0}}张</view>
       </view>
     </view>
   </view>

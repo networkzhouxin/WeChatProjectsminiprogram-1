@@ -2,7 +2,7 @@
 // 移除静态相册数据
 Page({
   data: {
-    albumList: [], // 所有相册列表
+    albums: [], // 所有相册列表
     refreshing: false, // 下拉刷新状态
     
     // 添加新相册相关
@@ -75,63 +75,32 @@ Page({
     console.log('开始加载相册列表');
 
     const db = wx.cloud.database();
-    const albumsMap = new Map();
-    const that = this;  // 保存this引用供后续使用
-
-    // 先获取自定义相册列表
+    const albums = [];
+    
+    // 获取自定义相册列表
     return db.collection('albums').get().then(albumsRes => {
       console.log('获取自定义相册成功:', albumsRes.data);
       
-      // 将数据库中的相册添加到Map
+      // 将数据库中的相册添加到数组
       albumsRes.data.forEach(album => {
-        albumsMap.set(album.title, {
-          id: album._id,
-          title: album.title,
-          count: album.photoCount || 0,
-          cover: that.isDefaultCover(album.coverImage) ? '/images/default-album.png' : album.coverImage,
-          isEmpty: album.photoCount === 0
-        });
+        if (album.title && album.title !== '默认相册') {
+          albums.push({
+            id: album._id,
+            title: album.title,
+            photoCount: album.photoCount || 0,
+            coverUrl: album.coverImage || '',
+            createTime: album.createTime || 0
+          });
+        }
       });
       
-      // 获取所有照片列表，更新相册信息
-      return wx.cloud.callFunction({
-        name: 'getPhotoList',
-        data: {}
-      });
-    }).then(res => {
-      console.log('获取照片列表成功:', res.result);
-      
-      if (res.result && res.result.photoList) {
-        const photos = res.result.photoList;
-        
-        // 按标签分组照片
-        photos.forEach(photo => {
-          const tag = photo.tag || '';
-          
-          // 只处理有标签的照片
-          if (tag) {
-            // 如果Map中存在该相册，更新相册信息
-            if (albumsMap.has(tag)) {
-              const album = albumsMap.get(tag);
-              album.count = (album.count || 0) + 1;
-              album.isEmpty = false;
-              
-              // 如果相册没有封面，使用照片的fileID作为封面
-              if (!album.cover || album.cover === '/images/default-album.png') {
-                album.cover = photo.fileID;
-              }
-            }
-          }
-        });
-      }
-      
-      // 转换为数组并按照创建时间排序
-      const albumList = Array.from(albumsMap.values()).sort((a, b) => b.createTime - a.createTime);
+      // 按创建时间排序
+      albums.sort((a, b) => b.createTime - a.createTime);
       
       this.setData({
-        albumList,
+        albums,
         isLoading: false,
-        isEmpty: albumList.length === 0,
+        isEmpty: albums.length === 0,
         refreshing: false // 确保刷新状态被重置
       });
       
@@ -155,7 +124,7 @@ Page({
   forceClearAndRefreshAlbums() {
     // 清空当前列表
     this.setData({
-      albumList: [],
+      albums: [],
       isLoading: true
     });
 
@@ -167,11 +136,12 @@ Page({
 
   // 点击相册进入详情页
   onAlbumTap(e) {
-    const album = e.currentTarget.dataset.album;
+    const id = e.currentTarget.dataset.id;
+    const title = e.currentTarget.dataset.title;
     
     // 跳转到相册详情页
     wx.navigateTo({
-      url: `/pages/album-detail/index?albumId=${album.id}&albumTitle=${album.title}`
+      url: `/pages/album-detail/index?albumId=${id}&albumTitle=${title}`
     });
   },
 
@@ -369,7 +339,7 @@ Page({
       console.log('新建相册成功', res);
 
       // 添加到相册列表
-      const albumList = this.data.albumList;
+      const albumList = this.data.albums;
       albumList.unshift({
         id: res._id,
         title: this.data.newAlbumName.trim(),
@@ -380,7 +350,7 @@ Page({
 
       // 更新UI
       this.setData({
-        albumList,
+        albums: albumList,
         showAddAlbumModal: false,
         newAlbumName: '',
         isLoading: false
@@ -451,7 +421,7 @@ Page({
           }
           
           // 更新本地相册列表
-          const albumList = this.data.albumList.map(item => {
+          const albumList = this.data.albums.map(item => {
             if (item.id === album.id) {
           return {
                 ...item,
@@ -463,7 +433,7 @@ Page({
           });
           
           this.setData({ 
-            albumList,
+            albums: albumList,
             showAddAlbumModal: false
           });
           
@@ -510,7 +480,7 @@ Page({
           console.log('更新照片标签成功', dbRes);
           
           // 更新本地相册列表
-          const albumList = this.data.albumList.map(item => {
+          const albumList = this.data.albums.map(item => {
             if (item.id === album.id) {
               return {
                 ...item,
@@ -522,7 +492,7 @@ Page({
     });
 
     this.setData({ 
-            albumList,
+            albums: albumList,
             showAddAlbumModal: false
           });
           

@@ -4,7 +4,7 @@
   border-radius: 12rpx;
   overflow: hidden;
   position: relative;
-  background-color: #f5f5f5;
+  background: linear-gradient(135deg, #f0f0f0 0%, #e0e0e0 100%);
 }
 
 .album-container {
@@ -17,90 +17,91 @@
   position: relative;
 }
 
-/* 空相册图标 */
-.empty-icon {
-  width: 120rpx;
-  height: 120rpx;
+.empty-content {
+  width: 100%;
+  height: 100%;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
   align-items: center;
-  position: relative;
+  justify-content: center;
+}
+
+.icon-wrapper {
+  width: 160rpx;
+  height: 160rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20rpx;
 }
 
 .icon-image {
-  width: 80rpx;
-  height: 60rpx;
-  background-color: #e3e6eb;
-  border-radius: 6rpx;
+  width: 120rpx;
+  height: 100rpx;
+  background-color: rgba(255, 255, 255, 0.8);
+  border-radius: 10rpx;
   position: relative;
+  overflow: hidden;
+  border: 4rpx solid rgba(255, 255, 255, 0.9);
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.1);
+}
+
+.icon-mountain {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  height: 60%;
   overflow: hidden;
 }
 
-.icon-detail {
-  position: absolute;
-  top: 16rpx;
-  left: 16rpx;
-  width: 16rpx;
-  height: 16rpx;
-  border-radius: 50%;
-  background-color: #c5c9cc;
-}
-
-.icon-detail::after {
+.icon-mountain::before {
   content: "";
   position: absolute;
-  width: 40rpx;
-  height: 10rpx;
-  background-color: #c5c9cc;
-  border-radius: 5rpx;
-  bottom: -30rpx;
-  left: 4rpx;
+  width: 90rpx;
+  height: 60rpx;
+  background-color: #e3e6eb;
+  bottom: 0;
+  left: 0;
+  clip-path: polygon(0% 100%, 50% 30%, 100% 100%);
 }
 
-.icon-plus {
-  width: 32rpx;
-  height: 32rpx;
+.icon-mountain::after {
+  content: "";
   position: absolute;
-  bottom: 10rpx;
+  width: 60rpx;
+  height: 40rpx;
+  background-color: #c5c9cc;
+  bottom: 0;
   right: 10rpx;
-  background-color: #0052d9;
-  border-radius: 50%;
-  position: relative;
-  box-shadow: 0 0 8rpx rgba(0, 0, 0, 0.15);
+  clip-path: polygon(0% 100%, 50% 40%, 100% 100%);
 }
 
-.icon-plus::before,
-.icon-plus::after {
-  content: "";
+.icon-sun {
   position: absolute;
-  background-color: #ffffff;
-}
-
-.icon-plus::before {
-  width: 16rpx;
-  height: 2rpx;
-  top: 15rpx;
-  left: 8rpx;
-}
-
-.icon-plus::after {
-  width: 2rpx;
-  height: 16rpx;
-  top: 8rpx;
-  left: 15rpx;
+  top: 18rpx;
+  right: 20rpx;
+  width: 20rpx;
+  height: 20rpx;
+  background-color: #ffd662;
+  border-radius: 50%;
+  box-shadow: 0 0 10rpx rgba(255, 214, 98, 0.7);
 }
 
 .album-title {
+  font-size: 28rpx;
+  color: #333333;
   position: absolute;
   bottom: 40rpx;
-  font-size: 28rpx;
-  color: #000000;
-  font-weight: 400;
+  width: 80%;
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .album-count {
+  font-size: 24rpx;
+  color: #666666;
   position: absolute;
-  bottom: 12rpx;
-  font-size: 22rpx;
-  color: #888888;
+  bottom: 10rpx;
 } 
