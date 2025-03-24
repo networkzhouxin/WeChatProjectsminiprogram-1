@@ -1,1 +1,70 @@
 /* pages/photo-detail/index.wxss */
+.container {
+  padding: 0;
+  width: 100%;
+  min-height: 100vh;
+  background-color: #f9f9f9;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.photo-detail-container {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20rpx;
+  box-sizing: border-box;
+}
+
+.photo-image {
+  width: 100%;
+  border-radius: 12rpx;
+  box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.1);
+}
+
+.photo-info {
+  width: 100%;
+  margin-top: 30rpx;
+  padding: 20rpx;
+  background-color: #fff;
+  border-radius: 12rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.05);
+}
+
+.photo-description {
+  font-size: 32rpx;
+  color: #333;
+  margin-bottom: 20rpx;
+  word-wrap: break-word;
+}
+
+.photo-time {
+  font-size: 28rpx;
+  color: #999;
+}
+
+/* TDesign Empty组件的自定义样式 */
+.empty-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 80vh;
+  width: 100%;
+}
+
+.custom-empty {
+  margin-top: 0;
+}
+
+.custom-empty-image {
+  width: 240rpx !important;
+  height: 240rpx !important;
+}
+
+.custom-empty-text {
+  font-size: 32rpx !important;
+  color: #666 !important;
+  margin-top: 20rpx;
+}

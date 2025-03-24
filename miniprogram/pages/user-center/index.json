@@ -1,6 +1,7 @@
 {
   "usingComponents": {
-    "cloud-tip-modal": "/components/cloudTipModal/index"
+    "beautiful-avatar": "../../components/beautiful-avatar/beautiful-avatar",
+    "cloud-tip-modal": "../../components/cloudTipModal/index"
   },
   "navigationBarBackgroundColor": "#f5f5f5",
   "navigationBarTitleText": "我"

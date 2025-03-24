@@ -5,10 +5,15 @@
     <view class="loading-text">加载中...</view>
   </view>
   
-  <!-- 空相册提示 -->
+  <!-- 空相册提示 - 使用自定义设计替代TDesign图标 -->
   <view class="empty-container" wx:if="{{isEmpty && !isLoading}}">
-    <image class="empty-image" src="../../images/empty-album.png" mode="aspectFit"></image>
-    <view class="empty-text">相册中还没有照片</view>
+    <view class="custom-empty-view">
+      <view class="custom-icon-container">
+        <view class="custom-icon-image"></view>
+      </view>
+      <view class="custom-empty-text">相册中还没有照片</view>
+      <button class="custom-add-btn" bindtap="addNewPhoto">添加照片</button>
+    </view>
   </view>
   
   <!-- 照片列表 - 按日期分组显示 -->

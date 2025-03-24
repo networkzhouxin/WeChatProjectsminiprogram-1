@@ -1,0 +1,106 @@
+.t-empty-album {
+  width: 100%;
+  height: 100%;
+  border-radius: 12rpx;
+  overflow: hidden;
+  position: relative;
+  background-color: #f5f5f5;
+}
+
+.album-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+/* 空相册图标 */
+.empty-icon {
+  width: 120rpx;
+  height: 120rpx;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+
+.icon-image {
+  width: 80rpx;
+  height: 60rpx;
+  background-color: #e3e6eb;
+  border-radius: 6rpx;
+  position: relative;
+  overflow: hidden;
+}
+
+.icon-detail {
+  position: absolute;
+  top: 16rpx;
+  left: 16rpx;
+  width: 16rpx;
+  height: 16rpx;
+  border-radius: 50%;
+  background-color: #c5c9cc;
+}
+
+.icon-detail::after {
+  content: "";
+  position: absolute;
+  width: 40rpx;
+  height: 10rpx;
+  background-color: #c5c9cc;
+  border-radius: 5rpx;
+  bottom: -30rpx;
+  left: 4rpx;
+}
+
+.icon-plus {
+  width: 32rpx;
+  height: 32rpx;
+  position: absolute;
+  bottom: 10rpx;
+  right: 10rpx;
+  background-color: #0052d9;
+  border-radius: 50%;
+  position: relative;
+  box-shadow: 0 0 8rpx rgba(0, 0, 0, 0.15);
+}
+
+.icon-plus::before,
+.icon-plus::after {
+  content: "";
+  position: absolute;
+  background-color: #ffffff;
+}
+
+.icon-plus::before {
+  width: 16rpx;
+  height: 2rpx;
+  top: 15rpx;
+  left: 8rpx;
+}
+
+.icon-plus::after {
+  width: 2rpx;
+  height: 16rpx;
+  top: 8rpx;
+  left: 15rpx;
+}
+
+.album-title {
+  position: absolute;
+  bottom: 40rpx;
+  font-size: 28rpx;
+  color: #000000;
+  font-weight: 400;
+}
+
+.album-count {
+  position: absolute;
+  bottom: 12rpx;
+  font-size: 22rpx;
+  color: #888888;
+} 

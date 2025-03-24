@@ -3,12 +3,14 @@
   <view class="top_bg" />
   <view class="main_content">
     <view class="userinfo_container">
-      <image class="avatar" src="../../images/icons/avatar.png" bind:tap="getOpenId" mode="widthFix" />
+      <view class="generic-icon avatar" bind:tap="getOpenId">
+        <view class="icon-person"></view>
+      </view>
       <block wx:if="{{ !openId }}">
         <view class="username" bind:tap="getOpenId">请点击登录</view>
       </block>
       <block wx:else>
-        <view class="username">openId: {{ openId }}</view>
+        <view class="username">{{openId ? (openId.substring(0, 8) + '...') : ''}}</view>
       </block>
     </view>
     <view class="settings_container">
@@ -28,8 +30,10 @@
       </view> -->
       <view class="setting_item">
         <view class="left">
-          <image class="setting_icon" src="../../images/icons/customer-service.svg" />
-          <!-- <view class="setting_text">联系客服</view> -->
+          <view class="generic-icon setting_icon">
+            <view class="icon-contact"></view>
+          </view>
+          <view class="setting_text">联系客服</view>
           <button open-type="contact" class="contact-button">
             联系客服
           </button>
@@ -38,7 +42,9 @@
       </view>
       <view class="setting_item" bind:tap="gotoWxCodePage">
         <view class="left">
-          <image class="setting_icon" src="../../images/icons/share.svg" />
+          <view class="generic-icon setting_icon">
+            <view class="icon-share"></view>
+          </view>
           <view class="setting_text">分享小程序</view>
         </view>
         <image class="arrow_icon" src="../../images/arrow.svg" />

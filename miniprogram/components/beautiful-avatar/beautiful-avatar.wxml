@@ -1,0 +1,6 @@
+<view class="beautiful-avatar" style="width: {{size}}; height: {{size}}; background: {{gradient}};">
+  <view class="avatar-inner">
+    <view class="avatar-icon"></view>
+    <text wx:if="{{text}}" class="avatar-text">{{text}}</text>
+  </view>
+</view> 

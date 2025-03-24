@@ -17,8 +17,15 @@
       bindtap="onAlbumTap" 
       bindlongpress="onAlbumLongPress"
       data-album="{{item}}">
+      <!-- 使用TDesign的空相册组件 -->
       <view class="album-cover">
-        <image src="{{item.cover}}" mode="aspectFill"></image>
+        <t-empty-album 
+          wx:if="{{item.cover === '/images/default-album.png' || !item.cover}}"
+          title="{{item.title}}"
+          count="{{item.count}}"
+        ></t-empty-album>
+        <!-- 显示实际相册封面 -->
+        <image wx:else src="{{item.cover}}" mode="aspectFill"></image>
       </view>
       <view class="album-info">
         <text class="album-title">{{item.title}}</text>
@@ -27,10 +34,15 @@
     </view>
   </view>
 
-  <!-- 空状态 -->
+  <!-- 空状态 - 使用自定义设计替代TDesign图标 -->
   <view class="empty-state" wx:if="{{albumList.length === 0 && !isLoading}}">
-    <text class="empty-text">暂无相册</text>
-    <text class="empty-subtext">点击"+"创建新相册</text>
+    <view class="custom-empty-view">
+      <view class="custom-icon-container">
+        <view class="custom-icon-folder"></view>
+      </view>
+      <view class="custom-empty-text">暂无相册</view>
+      <button class="add-album-btn" bindtap="addNewAlbum">新建相册</button>
+    </view>
   </view>
 
   <!-- 新建/重命名相册弹窗 -->

@@ -1,0 +1,12 @@
+<view class="t-empty-album">
+  <view class="album-container">
+    <view class="empty-icon">
+      <view class="icon-image">
+        <view class="icon-detail"></view>
+      </view>
+      <view class="icon-plus"></view>
+    </view>
+    <view class="album-title" wx:if="{{title}}">{{title}}</view>
+    <view class="album-count" wx:if="{{count > 0}}">{{count}}张</view>
+  </view>
+</view> 

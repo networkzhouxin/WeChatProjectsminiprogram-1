@@ -55,5 +55,6 @@
         "selectedIconPath": "images/icons/usercenter-active.png"
       }
     ]
-  }
+  },
+  "globalComponents": {}
 }

@@ -1,0 +1,25 @@
+<view class="beautiful-album" style="width: {{size}}; height: {{size}}; background: {{gradient}};">
+  <view class="album-inner">
+    <!-- 空相册样式 - 使用TDesign Empty组件 -->
+    <view class="empty-album-wrapper" wx:if="{{empty || count === 0}}">
+      <t-empty 
+        icon="image-error" 
+        description="" 
+        image="" 
+        t-class="album-empty"
+        t-class-image="album-empty-image"
+        t-class-description="album-empty-text">
+      </t-empty>
+    </view>
+    
+    <!-- 非空相册样式 -->
+    <view class="photo-stack" wx:else>
+      <view class="photo photo1"></view>
+      <view class="photo photo2"></view>
+      <view class="photo photo3"></view>
+    </view>
+    
+    <text wx:if="{{title}}" class="album-title">{{title}}</text>
+    <text wx:if="{{count > 0}}" class="album-count">{{count}}张</text>
+  </view>
+</view> 

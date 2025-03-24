@@ -1,2 +1,23 @@
 <!--pages/photo-detail/index.wxml-->
-<text>pages/photo-detail/index.wxml</text>
+<view class="container">
+  <!-- 照片详情 -->
+  <view class="photo-detail-container" wx:if="{{photo}}">
+    <image class="photo-image" src="{{photo.tempFileURL || photo.fileID}}" mode="widthFix" binderror="onImageError"></image>
+    <view class="photo-info">
+      <view class="photo-description" wx:if="{{photo.description}}">{{photo.description}}</view>
+      <view class="photo-time">{{photo.createdTime}}</view>
+    </view>
+  </view>
+
+  <!-- 空状态 -->
+  <view class="empty-container" wx:else>
+    <t-empty 
+      icon="error-circle"
+      description="照片不存在或已被删除" 
+      image="" 
+      t-class="custom-empty"
+      t-class-image="custom-empty-image"
+      t-class-description="custom-empty-text">
+    </t-empty>
+  </view>
+</view>

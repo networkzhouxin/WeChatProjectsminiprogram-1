@@ -71,14 +71,12 @@ Page({
   
   // 加载相册列表
   loadAlbums() {
-    this.setData({
-      isLoading: true,
-      isEmpty: false,
-      refreshing: false // 确保刷新状态被重置
-    });
+    this.setData({ isLoading: true });
+    console.log('开始加载相册列表');
 
     const db = wx.cloud.database();
     const albumsMap = new Map();
+    const that = this;  // 保存this引用供后续使用
 
     // 先获取自定义相册列表
     return db.collection('albums').get().then(albumsRes => {
@@ -90,7 +88,7 @@ Page({
           id: album._id,
           title: album.title,
           count: album.photoCount || 0,
-          cover: album.coverImage || '/images/default-album.png',
+          cover: that.isDefaultCover(album.coverImage) ? '/images/default-album.png' : album.coverImage,
           isEmpty: album.photoCount === 0
         });
       });
@@ -338,89 +336,65 @@ Page({
     });
   },
 
-  // 确认新建/重命名相册
-  confirmAddAlbum() {
-    const { newAlbumName, isRenaming, editingAlbum } = this.data;
-    
-    if (!newAlbumName.trim()) {
+  /**
+   * 新建或重命名相册确认
+   */
+  confirmAddAlbum: function () {
+    if (!this.data.newAlbumName.trim()) {
       wx.showToast({
-        title: '请输入相册名称',
+        title: '相册名称不能为空',
         icon: 'none'
       });
       return;
     }
-    
-    if (isRenaming) {
-      // 重命名相册
-      this.renameAlbum(editingAlbum, newAlbumName);
-    } else {
-      // 创建新相册
-      this.createNewAlbum(newAlbumName);
+
+    this.setData({ isLoading: true });
+
+    // 如果是重命名相册
+    if (this.data.isRenaming && this.data.editingAlbum) {
+      this.renameAlbum();
+      return;
     }
-  },
-  
-  // 创建新相册
-  createNewAlbum(albumName) {
-    // 关闭弹窗
-    this.setData({
-      showAddAlbumModal: false
-    });
-    
-    // 显示加载提示
-    wx.showLoading({
-      title: '创建相册...',
-      mask: true
-    });
-    
-    // 在数据库中创建相册记录
+
+    // 新建相册
     const db = wx.cloud.database();
     db.collection('albums').add({
       data: {
-        title: albumName,
-        createTime: db.serverDate(),
-        coverImage: '', // 默认没有封面
-        photoCount: 0 // 初始照片数为0
+        title: this.data.newAlbumName.trim(),
+        photoCount: 0,
+        coverImage: '/images/default-album.png',
+        createdTime: db.serverDate()
       }
     }).then(res => {
-      console.log('创建相册成功:', res);
-      
-      // 创建新的相册对象
-      const newAlbum = {
-        id: res._id, // 使用数据库返回的ID
-        title: albumName,
-        count: 0,
-        cover: '/images/default-album.png', // 使用默认封面
-        isEmpty: true
-      };
-      
+      console.log('新建相册成功', res);
+
       // 添加到相册列表
-      const albumList = [...this.data.albumList, newAlbum];
-      
-          this.setData({
-        albumList
+      const albumList = this.data.albumList;
+      albumList.unshift({
+        id: res._id,
+        title: this.data.newAlbumName.trim(),
+        count: 0,
+        cover: '/images/default-album.png',
+        isEmpty: true
       });
-      
-      wx.hideLoading();
-      
-      // 显示成功提示
+
+      // 更新UI
+      this.setData({
+        albumList,
+        showAddAlbumModal: false,
+        newAlbumName: '',
+        isLoading: false
+      });
+
       wx.showToast({
         title: '创建成功',
         icon: 'success'
       });
-      
-      // 跳转到新相册详情页
-      setTimeout(() => {
-        wx.navigateTo({
-          url: `/pages/album-detail/index?albumId=${newAlbum.id}&albumTitle=${newAlbum.title}`
-        });
-      }, 500);
     }).catch(err => {
-      console.error('创建相册失败:', err);
-      
-      wx.hideLoading();
-      
+      console.error('新建相册失败', err);
+      this.setData({ isLoading: false });
       wx.showToast({
-        title: '创建失败',
+        title: '创建失败，请重试',
         icon: 'none'
       });
     });
@@ -584,5 +558,12 @@ Page({
         showAddAlbumModal: false
       });
     });
+  },
+
+  /**
+   * 检查是否使用默认封面
+   */
+  isDefaultCover: function(cover) {
+    return !cover || cover === '/images/default-album.png';
   }
 });

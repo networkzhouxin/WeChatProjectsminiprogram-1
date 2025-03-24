@@ -4,7 +4,10 @@
     "mp-dialog": "/miniprogram_npm/weui-miniprogram/dialog/dialog",
     "mp-actionSheet": "/miniprogram_npm/weui-miniprogram/actionsheet/actionsheet",
     "mp-cells": "/miniprogram_npm/weui-miniprogram/cells/cells",
-    "mp-cell": "/miniprogram_npm/weui-miniprogram/cell/cell"
+    "mp-cell": "/miniprogram_npm/weui-miniprogram/cell/cell",
+    "beautiful-album": "../../components/beautiful-album/beautiful-album",
+    "beautiful-avatar": "../../components/beautiful-avatar/beautiful-avatar",
+    "t-empty-album": "../../components/t-empty-album/t-empty-album"
   },
   "navigationBarBackgroundColor": "#fff",
   "navigationBarTitleText": "相册",

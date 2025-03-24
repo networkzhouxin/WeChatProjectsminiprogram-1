@@ -27,11 +27,13 @@
 }
 
 .avatar {
-  width: 128rpx;
-  height: 128rpx;
+  width: 128rpx !important;
+  height: 128rpx !important;
   /* background-color: #e5e5e5; */
   border-radius: 50%;
   transform: scale(1.8);
+  position: relative;
+  z-index: 2;
 }
 
 .username {
@@ -85,8 +87,9 @@
 }
 
 .setting_icon {
-  width: 40rpx;
-  height: 40rpx;
+  width: 40rpx !important;
+  height: 40rpx !important;
+  position: relative;
 }
 
 .setting_text {
@@ -96,4 +99,71 @@
 .arrow_icon {
   width: 30rpx;
   height: 30rpx;
+}
+
+.generic-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #8e8e93;
+  color: #ffffff;
+  border-radius: 50%;
+  overflow: hidden;
+}
+
+.icon-person {
+  width: 60%;
+  height: 60%;
+  border-radius: 50%;
+  background-color: #ffffff;
+  position: relative;
+}
+
+.icon-person::after {
+  content: "";
+  position: absolute;
+  width: 100%;
+  height: 50%;
+  background-color: #ffffff;
+  border-radius: 50% 50% 0 0;
+  bottom: -40%;
+  left: 0;
+}
+
+.icon-contact, .icon-share {
+  width: 60%;
+  height: 60%;
+  background-color: #ffffff;
+  position: relative;
+}
+
+.icon-contact::before {
+  content: "";
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border: 2rpx solid #ffffff;
+  border-radius: 4rpx;
+  top: -2rpx;
+  left: -2rpx;
+}
+
+.icon-share::before {
+  content: "";
+  position: absolute;
+  width: 80%;
+  height: 2rpx;
+  background-color: #ffffff;
+  top: 50%;
+  left: 10%;
+}
+
+.icon-share::after {
+  content: "";
+  position: absolute;
+  width: 2rpx;
+  height: 80%;
+  background-color: #ffffff;
+  left: 50%;
+  top: 10%;
 }
