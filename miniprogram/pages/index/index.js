@@ -43,12 +43,6 @@ Page({
     if (item.index === 0) { // 相册标签的index为0
       // 重新加载相册分类
       this.forceClearAndRefreshAlbums();
-      
-      wx.showToast({
-        title: '刷新成功',
-        icon: 'success',
-        duration: 1000
-      });
     }
   },
   
@@ -59,12 +53,6 @@ Page({
     });
     
     this.loadAlbums()
-      .then(() => {
-        wx.showToast({
-          title: '刷新成功',
-          icon: 'success'
-        });
-      })
       .catch(err => {
         console.error('下拉刷新失败:', err);
         wx.showToast({
